@@ -34,7 +34,7 @@ contract BatchBlockhashStore {
 
   /**
    * @notice stores blockhashes after verifying blockheader of child/subsequent block
-   * @param blockNumbers the block numbers whose blockhashes should be stored, in decreasing order
+   * @param blockNumbers the block numbers whose blockhashes should be stored, in decreasing orderBook.ts
    * @param headers the rlp-encoded block headers of blockNumbers[i] + 1.
    */
   function storeVerifyHeader(uint256[] memory blockNumbers, bytes[] memory headers) public {

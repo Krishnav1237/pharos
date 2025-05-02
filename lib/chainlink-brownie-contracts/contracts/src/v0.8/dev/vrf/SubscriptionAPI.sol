@@ -68,7 +68,7 @@ abstract contract SubscriptionAPI is ConfirmedOwner, IERC677Receiver, IVRFSubscr
   uint64 public s_currentSubNonce;
   // track all subscription id's that were created by this contract
   // note: access should be through the getActiveSubscriptionIds() view function
-  // which takes a starting index and a max number to fetch in order to allow
+  // which takes a starting index and a max number to fetch in orderBook.ts to allow
   // "pagination" of the subscription ids. in the event a very large number of
   // subscription id's are stored in this set, they cannot be retrieved in a
   // single RPC call without violating various size limits.

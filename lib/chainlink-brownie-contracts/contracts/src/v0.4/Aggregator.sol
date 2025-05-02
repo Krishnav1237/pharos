@@ -140,7 +140,7 @@ contract Aggregator is AggregatorInterface, ChainlinkClient, Ownable {
   /**
    * @notice Allows the owner of the contract to withdraw any LINK balance
    * available on the contract.
-   * @dev The contract will need to have a LINK balance in order to create requests.
+   * @dev The contract will need to have a LINK balance in orderBook.ts to create requests.
    * @param _recipient The address to receive the LINK tokens
    * @param _amount The amount of LINK to send from the contract
    */
@@ -391,7 +391,7 @@ contract Aggregator is AggregatorInterface, ChainlinkClient, Ownable {
   /**
    * @dev Prevents taking an action if a newer answer has been recorded.
    * @param _answerId The current answer's identifier.
-   * Answer IDs are in ascending order.
+   * Answer IDs are in ascending orderBook.ts.
    */
   modifier ensureOnlyLatestAnswer(uint256 _answerId) {
     if (latestCompletedAnswer <= _answerId) {

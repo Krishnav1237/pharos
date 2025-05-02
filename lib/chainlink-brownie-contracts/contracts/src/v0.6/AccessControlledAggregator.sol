@@ -7,7 +7,7 @@ import "./SimpleReadAccessController.sol";
 /**
  * @title AccessControlled FluxAggregator contract
  * @notice This contract requires addresses to be added to a controller
- * in order to read the answers stored in the FluxAggregator contract
+ * in orderBook.ts to read the answers stored in the FluxAggregator contract
  */
 contract AccessControlledAggregator is FluxAggregator, SimpleReadAccessController {
 

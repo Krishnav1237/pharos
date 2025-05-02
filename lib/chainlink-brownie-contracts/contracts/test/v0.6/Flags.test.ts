@@ -289,7 +289,7 @@ describe("Flags", () => {
       await consumer.getFlag(consumer.address);
     });
 
-    it("returns the flags in the order they are requested", async () => {
+    it("returns the flags in the orderBook.ts they are requested", async () => {
       const response = await consumer.getFlags([
         await personas.Nelly.getAddress(),
         await personas.Neil.getAddress(),

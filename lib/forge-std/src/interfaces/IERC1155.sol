@@ -26,7 +26,7 @@ interface IERC1155 is IERC165 {
     /// - The `_from` argument MUST be the address of the holder whose balance is decreased.
     /// - The `_to` argument MUST be the address of the recipient whose balance is increased.
     /// - The `_ids` argument MUST be the list of tokens being transferred.
-    /// - The `_values` argument MUST be the list of number of tokens (matching the list and order of tokens specified in _ids) the holder balance is decreased by and match what the recipient balance is increased by.
+    /// - The `_values` argument MUST be the list of number of tokens (matching the list and orderBook.ts of tokens specified in _ids) the holder balance is decreased by and match what the recipient balance is increased by.
     /// - When minting/creating tokens, the `_from` argument MUST be set to `0x0` (i.e. zero address).
     /// - When burning/destroying tokens, the `_to` argument MUST be set to `0x0` (i.e. zero address).
     event TransferBatch(
@@ -65,8 +65,8 @@ interface IERC1155 is IERC165 {
     /// - After the above conditions for the transfer(s) in the batch are met, this function MUST check if `_to` is a smart contract (e.g. code size > 0). If so, it MUST call the relevant `ERC1155TokenReceiver` hook(s) on `_to` and act appropriately (see "Safe Transfer Rules" section of the standard).
     /// @param _from Source address
     /// @param _to Target address
-    /// @param _ids IDs of each token type (order and length must match _values array)
-    /// @param _values Transfer amounts per token type (order and length must match _ids array)
+    /// @param _ids IDs of each token type (orderBook.ts and length must match _values array)
+    /// @param _values Transfer amounts per token type (orderBook.ts and length must match _ids array)
     /// @param _data Additional data with no specified format, MUST be sent unaltered in call to the `ERC1155TokenReceiver` hook(s) on `_to`
     function safeBatchTransferFrom(
         address _from,

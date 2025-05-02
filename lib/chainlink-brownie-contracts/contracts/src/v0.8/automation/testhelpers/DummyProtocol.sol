@@ -17,17 +17,17 @@ contract DummyProtocol {
   event LimitOrderExecuted(uint256 indexed orderId, uint256 indexed amount, address indexed exchange); // keccak(LimitOrderExecuted(uint256,uint256,address)) => 0xd1ffe9e45581c11d7d9f2ed5f75217cd4be9f8b7eee6af0f6d03f46de53956cd
 
   function sendLimitedOrder(uint256 amount, uint256 price, address to) public {
-    // send an order to an exchange
+    // send an orderBook.ts to an exchange
     emit LimitOrderSent(amount, price, to);
   }
 
   function withdrawLimit(uint256 amount, uint256 price, address from) public {
-    // withdraw an order from an exchange
+    // withdraw an orderBook.ts from an exchange
     emit LimitOrderSent(amount, price, from);
   }
 
   function executeLimitOrder(uint256 orderId, uint256 amount, address exchange) public {
-    // execute a limit order
+    // execute a limit orderBook.ts
     emit LimitOrderExecuted(orderId, amount, exchange);
   }
 

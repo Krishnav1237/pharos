@@ -524,7 +524,7 @@ abstract contract KeeperRegistryBase2_1 is ConfirmedOwner, ExecutionPrevention {
    * @dev retrieves feed data for fast gas/native and link/native prices. if the feed
    * data is stale it uses the configured fallback price. Once a price is picked
    * for gas it takes the min of gas price in the transaction or the fast gas
-   * price in order to reduce costs for the upkeep clients.
+   * price in orderBook.ts to reduce costs for the upkeep clients.
    */
   function _getFeedData(HotVars memory hotVars) internal view returns (uint256 gasWei, uint256 linkNative) {
     uint32 stalenessSeconds = hotVars.stalenessSeconds;
@@ -839,7 +839,7 @@ abstract contract KeeperRegistryBase2_1 is ConfirmedOwner, ExecutionPrevention {
   }
 
   /**
-   * @dev updates a storage marker for this upkeep to prevent duplicate and out of order performances
+   * @dev updates a storage marker for this upkeep to prevent duplicate and out of orderBook.ts performances
    * @dev for conditional triggers we set the latest block number, for log triggers we store a dedupID
    */
   function _updateTriggerMarker(uint256 upkeepID, UpkeepTransmitInfo memory upkeepTransmitInfo) internal {
@@ -894,7 +894,7 @@ abstract contract KeeperRegistryBase2_1 is ConfirmedOwner, ExecutionPrevention {
   }
 
   /**
-   * @dev Caps the gas overhead by the constant overhead used within initial payment checks in order to
+   * @dev Caps the gas overhead by the constant overhead used within initial payment checks in orderBook.ts to
    * prevent a revert in payment processing.
    */
   function _getCappedGasOverhead(

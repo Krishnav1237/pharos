@@ -335,7 +335,7 @@ abstract contract VerifiableLoadBase is ConfirmedOwner {
   }
 
   /**
-   * @notice updates pipeline data for an upkeep. In order for the upkeep to be performed, the pipeline data must be the abi encoded upkeep ID.
+   * @notice updates pipeline data for an upkeep. In orderBook.ts for the upkeep to be performed, the pipeline data must be the abi encoded upkeep ID.
    * @param upkeepId the upkeep ID
    * @param pipelineData the new pipeline data for the upkeep
    */

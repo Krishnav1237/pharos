@@ -225,7 +225,7 @@ contract OrderBookTest is Test {
         // Record initial token balance
         uint256 tokenBalanceBefore = tokenAsset.balanceOf(trader1);
 
-        // Place a 100-token SELL limit order
+        // Place a 100-token SELL limit orderBook.ts
         uint256 oid = orderBook.createOrder(
             address(tokenAsset),
             address(paymentAsset),
@@ -235,7 +235,7 @@ contract OrderBookTest is Test {
             OrderBook.OrderSide.SELL
         );
 
-        // Cancel the order
+        // Cancel the orderBook.ts
         orderBook.cancelOrder(oid);
 
         // Check token balance after cancel
@@ -262,7 +262,7 @@ contract OrderBookTest is Test {
         // Record initial payment balance
         uint256 paymentBalanceBefore = paymentAsset.balanceOf(trader1);
 
-        // Place a 50-token BUY limit order @ price = 3
+        // Place a 50-token BUY limit orderBook.ts @ price = 3
         uint256 amount       = 50 * 1e18;
         uint256 price        = 3 * 1e18;
         uint256 totalPayment = (amount * price) / 1e18; // = 150 * 10**18
@@ -276,7 +276,7 @@ contract OrderBookTest is Test {
             OrderBook.OrderSide.BUY
         );
 
-        // Cancel the order
+        // Cancel the orderBook.ts
         orderBook.cancelOrder(oid);
 
         // Check payment balance after cancel
@@ -334,7 +334,7 @@ contract OrderBookTest is Test {
     }
 
     function testUpdateOrderAfterMatch() public {
-        // Create an order
+        // Create an orderBook.ts
         vm.prank(trader1);
         uint256 orderId = orderBook.createOrder(
             address(tokenAsset),
@@ -355,11 +355,11 @@ contract OrderBookTest is Test {
             "Initial status should be OPEN"
         );
 
-        // Simulate a match of 2 ether worth of the order
+        // Simulate a match of 2 ether worth of the orderBook.ts
         vm.prank(matchingEngine);
         orderBook.updateOrderAfterMatch(orderId, 2 * 10**18);
 
-        // Get the updated order state
+        // Get the updated orderBook.ts state
         (, , , , , , uint256 filledAfter, , , , , OrderBook.OrderStatus statusAfter)
         = orderBook.orders(orderId);
 
@@ -393,7 +393,7 @@ contract OrderBookTest is Test {
     // ============ View Function Tests ============
 
     function testGetBestPrices() public {
-        // Create buy order
+        // Create buy orderBook.ts
         vm.prank(trader1);
         orderBook.createOrder(
             address(tokenAsset),
@@ -404,7 +404,7 @@ contract OrderBookTest is Test {
             OrderBook.OrderSide.BUY
         );
 
-        // Create another buy order with better price
+        // Create another buy orderBook.ts with better price
         vm.prank(trader1);
         orderBook.createOrder(
             address(tokenAsset),
@@ -415,7 +415,7 @@ contract OrderBookTest is Test {
             OrderBook.OrderSide.BUY
         );
 
-        // Create sell order
+        // Create sell orderBook.ts
         vm.prank(trader2);
         orderBook.createOrder(
             address(tokenAsset),
@@ -426,7 +426,7 @@ contract OrderBookTest is Test {
             OrderBook.OrderSide.SELL
         );
 
-        // Create another sell order with better price
+        // Create another sell orderBook.ts with better price
         vm.prank(trader2);
         orderBook.createOrder(
             address(tokenAsset),
@@ -520,14 +520,14 @@ contract OrderBookTest is Test {
         );
 
         vm.prank(trader1);
-        orderBook.cancelOrder(1); // Cancel the 2.0 order
+        orderBook.cancelOrder(1); // Cancel the 2.0 orderBook.ts
 
         (uint256 bestBuyPrice,) = orderBook.getBestPrices(address(tokenAsset), address(paymentAsset));
         assertEq(bestBuyPrice, 1.9 * 10**18); // Ensure best price updates
     }
 
     function testMarketOrderFlow() public {
-        // Create a limit sell order from trader2
+        // Create a limit sell orderBook.ts from trader2
         vm.startPrank(trader2);
         orderBook.createOrder(
             address(tokenAsset),
@@ -539,7 +539,7 @@ contract OrderBookTest is Test {
         );
         vm.stopPrank();
         
-        // Create a market buy order from trader1
+        // Create a market buy orderBook.ts from trader1
         vm.startPrank(trader1);
         uint256 marketOrderId = orderBook.createOrder(
             address(tokenAsset),
@@ -551,7 +551,7 @@ contract OrderBookTest is Test {
         );
         vm.stopPrank();
         
-        // Check that the price and amount were set correctly for the BUY market order
+        // Check that the price and amount were set correctly for the BUY market orderBook.ts
         (,,,, uint256 orderAmount, uint256 price,,,,,,) = orderBook.orders(marketOrderId);
         
         assertEq(orderAmount, 50 * 10**18, "Order amount should be 50 tokens");
@@ -566,7 +566,7 @@ contract OrderBookTest is Test {
         // Pause the exchange
         orderBook.pause();
 
-        // Try to create an order while paused - don't specify exact error message
+        // Try to create an orderBook.ts while paused - don't specify exact error message
         vm.expectRevert();
         vm.prank(trader1);
         orderBook.createOrder(

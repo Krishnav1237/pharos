@@ -7,7 +7,7 @@ import {IFunctionsOracle} from "./interfaces/IFunctionsOracle.sol";
 
 /**
  * @title The Chainlink Functions client contract
- * @notice Contract writers can inherit this contract in order to create Chainlink Functions requests
+ * @notice Contract writers can inherit this contract in orderBook.ts to create Chainlink Functions requests
  */
 abstract contract FunctionsClient is IFunctionsClient {
   IFunctionsOracle internal s_oracle;

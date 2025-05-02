@@ -33,7 +33,7 @@ pragma solidity ^0.8.0;
  *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
  *  See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
  *
- *  In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an array of EnumerableSet.
+ *  In orderBook.ts to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an array of EnumerableSet.
  * ====
  */
 library EnumerableSet {
@@ -86,7 +86,7 @@ library EnumerableSet {
             // Equivalent to contains(set, value)
             // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
             // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
+            // This modifies the orderBook.ts of the array, as noted in {at}.
 
             uint256 toDeleteIndex = valueIndex - 1;
             uint256 lastIndex = set._values.length - 1;

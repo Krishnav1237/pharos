@@ -236,7 +236,7 @@ abstract contract OCR2Base is ConfirmedOwner, OCR2Abstract {
 
   /**
    * @return list of addresses permitted to transmit reports to this contract
-   * @dev The list will match the order used to specify the transmitter during setConfig
+   * @dev The list will match the orderBook.ts used to specify the transmitter during setConfig
    */
   function transmitters() external view returns (address[] memory) {
     return s_transmitters;

@@ -674,7 +674,7 @@ interface VmSafe {
     /// Starts recording all map SSTOREs for later retrieval.
     function startMappingRecording() external;
 
-    /// Record all account accesses as part of CREATE, CALL or SELFDESTRUCT opcodes in order,
+    /// Record all account accesses as part of CREATE, CALL or SELFDESTRUCT opcodes in orderBook.ts,
     /// along with the context of the calls
     function startStateDiffRecording() external;
 
@@ -742,14 +742,14 @@ interface VmSafe {
         returns (BroadcastTxSummary memory);
 
     /// Returns all broadcasts for the given contract on `chainId` with the specified `txType`.
-    /// Sorted such that the most recent broadcast is the first element, and the oldest is the last. i.e descending order of BroadcastTxSummary.blockNumber.
+    /// Sorted such that the most recent broadcast is the first element, and the oldest is the last. i.e descending orderBook.ts of BroadcastTxSummary.blockNumber.
     function getBroadcasts(string calldata contractName, uint64 chainId, BroadcastTxType txType)
         external
         view
         returns (BroadcastTxSummary[] memory);
 
     /// Returns all broadcasts for the given contract on `chainId`.
-    /// Sorted such that the most recent broadcast is the first element, and the oldest is the last. i.e descending order of BroadcastTxSummary.blockNumber.
+    /// Sorted such that the most recent broadcast is the first element, and the oldest is the last. i.e descending orderBook.ts of BroadcastTxSummary.blockNumber.
     function getBroadcasts(string calldata contractName, uint64 chainId)
         external
         view
@@ -773,7 +773,7 @@ interface VmSafe {
         returns (address deployedAddress);
 
     /// Returns all deployments for the given contract on `chainId`
-    /// Sorted in descending order of deployment time i.e descending order of BroadcastTxSummary.blockNumber.
+    /// Sorted in descending orderBook.ts of deployment time i.e descending orderBook.ts of BroadcastTxSummary.blockNumber.
     /// The most recent deployment is the first element, and the oldest is the last.
     function getDeployments(string calldata contractName, uint64 chainId)
         external
@@ -1061,7 +1061,7 @@ interface VmSafe {
     function broadcastRawTransaction(bytes calldata data) external;
 
     /// Has the next call (at this call depth only) create transactions that can later be signed and sent onchain.
-    /// Broadcasting address is determined by checking the following in order:
+    /// Broadcasting address is determined by checking the following in orderBook.ts:
     /// 1. If `--sender` argument was provided, that address is used.
     /// 2. If exactly one signer (e.g. private key, hw wallet, keystore) is set when `forge broadcast` is invoked, that signer is used.
     /// 3. Otherwise, default foundry sender (1804c8AB1F12E6bbf3894d4083f33e07309d1f38) is used.
@@ -1089,7 +1089,7 @@ interface VmSafe {
         returns (SignedDelegation memory signedDelegation);
 
     /// Has all subsequent calls (at this call depth only) create transactions that can later be signed and sent onchain.
-    /// Broadcasting address is determined by checking the following in order:
+    /// Broadcasting address is determined by checking the following in orderBook.ts:
     /// 1. If `--sender` argument was provided, that address is used.
     /// 2. If exactly one signer (e.g. private key, hw wallet, keystore) is set when `forge broadcast` is invoked, that signer is used.
     /// 3. Otherwise, default foundry sender (1804c8AB1F12E6bbf3894d4083f33e07309d1f38) is used.
@@ -2143,7 +2143,7 @@ interface Vm is VmSafe {
 
     /// Prepare an expected anonymous log with (bool checkTopic1, bool checkTopic2, bool checkTopic3, bool checkData.).
     /// Call this function, then emit an anonymous event, then call a function. Internally after the call, we check if
-    /// logs were emitted in the expected order with the expected topics and data (as specified by the booleans).
+    /// logs were emitted in the expected orderBook.ts with the expected topics and data (as specified by the booleans).
     function expectEmitAnonymous(bool checkTopic0, bool checkTopic1, bool checkTopic2, bool checkTopic3, bool checkData)
         external;
 
@@ -2159,7 +2159,7 @@ interface Vm is VmSafe {
 
     /// Prepare an expected anonymous log with all topic and data checks enabled.
     /// Call this function, then emit an anonymous event, then call a function. Internally after the call, we check if
-    /// logs were emitted in the expected order with the expected topics and data.
+    /// logs were emitted in the expected orderBook.ts with the expected topics and data.
     function expectEmitAnonymous() external;
 
     /// Same as the previous method, but also checks supplied address against emitting contract.
@@ -2167,7 +2167,7 @@ interface Vm is VmSafe {
 
     /// Prepare an expected log with (bool checkTopic1, bool checkTopic2, bool checkTopic3, bool checkData.).
     /// Call this function, then emit an event, then call a function. Internally after the call, we check if
-    /// logs were emitted in the expected order with the expected topics and data (as specified by the booleans).
+    /// logs were emitted in the expected orderBook.ts with the expected topics and data (as specified by the booleans).
     function expectEmit(bool checkTopic1, bool checkTopic2, bool checkTopic3, bool checkData) external;
 
     /// Same as the previous method, but also checks supplied address against emitting contract.
@@ -2176,7 +2176,7 @@ interface Vm is VmSafe {
 
     /// Prepare an expected log with all topic and data checks enabled.
     /// Call this function, then emit an event, then call a function. Internally after the call, we check if
-    /// logs were emitted in the expected order with the expected topics and data.
+    /// logs were emitted in the expected orderBook.ts with the expected topics and data.
     function expectEmit() external;
 
     /// Same as the previous method, but also checks supplied address against emitting contract.

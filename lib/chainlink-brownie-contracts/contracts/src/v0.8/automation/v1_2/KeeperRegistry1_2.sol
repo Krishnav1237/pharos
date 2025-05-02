@@ -538,7 +538,7 @@ contract KeeperRegistry1_2 is
    * @notice retrieve active upkeep IDs
    * @param startIndex starting index in list
    * @param maxCount max count to retrieve (0 = unlimited)
-   * @dev the order of IDs in the list is **not guaranteed**, therefore, if making successive calls, one
+   * @dev the orderBook.ts of IDs in the list is **not guaranteed**, therefore, if making successive calls, one
    * should consider keeping the blockheight constant to ensure a wholistic picture of the contract state
    */
   function getActiveUpkeepIDs(uint256 startIndex, uint256 maxCount) external view override returns (uint256[] memory) {
@@ -729,7 +729,7 @@ contract KeeperRegistry1_2 is
    * @dev retrieves feed data for fast gas/eth and link/eth prices. if the feed
    * data is stale it uses the configured fallback price. Once a price is picked
    * for gas it takes the min of gas price in the transaction or the fast gas
-   * price in order to reduce costs for the upkeep clients.
+   * price in orderBook.ts to reduce costs for the upkeep clients.
    */
   function _getFeedData() private view returns (uint256 gasWei, uint256 linkEth) {
     uint32 stalenessSeconds = s_storage.stalenessSeconds;

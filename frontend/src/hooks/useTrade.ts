@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { OrderType, OrderSide } from '@/types/market';
-import { useWallet } from './useWallet';
+import { useWallet } from '@/hooks/useWallet';
 import { approveOrderBook, createOrder, cancelOrder } from '@/services/blockchain';
 import { ethers } from 'ethers';
+import { notifySuccess, notifyError, notifyTxPending, updateTxStatus, formatTxHash } from '@/utils/toastUtils';
 
 interface TradeParams {
   tokenAsset: string;
@@ -36,6 +37,9 @@ export const useTrade = () => {
 
       const { tokenAsset, paymentAsset, amount, price, orderType, orderSide } = params;
 
+      // Show pending notification
+      const pendingToastId = notifyTxPending();
+
       // Determine which asset needs approval based on order side
       const assetToApprove = orderSide === OrderSide.BUY 
         ? paymentAsset 
@@ -60,6 +64,9 @@ export const useTrade = () => {
       const approvalTx = await approveOrderBook(assetToApprove, bufferedAmount, signer);
       console.log('Approval transaction:', approvalTx);
 
+      // Update notification for approval complete
+      notifyInfo(`Approval confirmed. Now placing your ${orderSide.toLowerCase()} order...`);
+
       // Create the order
       console.log('Creating order...');
       const orderTx = await createOrder(
@@ -73,10 +80,19 @@ export const useTrade = () => {
       );
       console.log('Order transaction:', orderTx);
 
+      // Update notification for order complete
+      updateTxStatus(
+        pendingToastId, 
+        'success', 
+        `${orderSide} order placed successfully. ${formatTxHash(orderTx.transactionHash)}`
+      );
+
       return orderTx;
     } catch (err: any) {
       console.error('Trade error:', err);
-      setError(err.message || 'Failed to submit trade');
+      const errorMessage = err.message || 'Failed to submit trade';
+      setError(errorMessage);
+      notifyError(`Transaction failed: ${errorMessage.substring(0, 100)}${errorMessage.length > 100 ? '...' : ''}`);
       return null;
     } finally {
       setIsSubmitting(false);
@@ -94,14 +110,26 @@ export const useTrade = () => {
       setIsSubmitting(true);
       setError(null);
 
+      // Show pending notification
+      const pendingToastId = notifyTxPending('Cancelling order...');
+
       console.log(`Cancelling order ${orderId}...`);
       const tx = await cancelOrder(orderId, signer);
       console.log('Cancel transaction:', tx);
 
+      // Update notification for cancellation complete
+      updateTxStatus(
+        pendingToastId, 
+        'success', 
+        `Order cancelled successfully. ${formatTxHash(tx.transactionHash)}`
+      );
+
       return tx;
     } catch (err: any) {
       console.error('Cancel error:', err);
-      setError(err.message || 'Failed to cancel order');
+      const errorMessage = err.message || 'Failed to cancel order';
+      setError(errorMessage);
+      notifyError(`Cancellation failed: ${errorMessage.substring(0, 100)}${errorMessage.length > 100 ? '...' : ''}`);
       return null;
     } finally {
       setIsSubmitting(false);

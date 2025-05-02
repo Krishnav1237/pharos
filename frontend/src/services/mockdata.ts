@@ -127,6 +127,16 @@ export const getMockPrices = (assets: Asset[]): Record<string, AssetPrice> => {
 export const getMockOrderHistory = (userAddress: string): Order[] => {
   const assets = getMockAssets();
   const mockOrders: Order[] = [];
+  
+  const basePrices: Record<string, number> = {
+    'AAPL': 184.92,
+    'MSFT': 417.88,
+    'TSLA': 174.50,
+    'GOLD': 2331.45,
+    'SLVR': 27.32,
+    'OIL': 78.23,
+    'USDC': 1.00,
+  };
 
   // Generate 10 random orders
   for (let i = 0; i < 10; i++) {
@@ -143,16 +153,6 @@ export const getMockOrderHistory = (userAddress: string): Order[] => {
     const amount = Math.floor(Math.random() * 10) + 1;
     const price = (basePrices[tokenAsset.symbol] || 100) * (0.95 + Math.random() * 0.1);
     const filled = isCompleted ? amount : isPartial ? amount * Math.random() : 0;
-    
-    const basePrices: Record<string, number> = {
-      'AAPL': 184.92,
-      'MSFT': 417.88,
-      'TSLA': 174.50,
-      'GOLD': 2331.45,
-      'SLVR': 27.32,
-      'OIL': 78.23,
-      'USDC': 1.00,
-    };
     
     mockOrders.push({
       id: `${i}`,

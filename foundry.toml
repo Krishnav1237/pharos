@@ -1,0 +1,22 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = [
+    "lib",
+    "node_modules",
+]
+remappings = [
+    "@chainlink/=node_modules/@chainlink/",
+    "@eth-optimism/=node_modules/@eth-optimism/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+]
+
+fs_permissions = [
+    { access = "read", path = "./deploy-args.json" },
+    { access = "read", path = "./deploy-stock-args.json" },
+    { access = "read", path = "./deploy-registry-args.json" },
+    { access = "read", path = "./deploy-pricefeed-args.json" },
+]
+
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

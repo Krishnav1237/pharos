@@ -1,0 +1,11 @@
+{
+  "tokenName": "Apple Inc.",
+  "tokenSymbol": "AAPL",
+  "companyName": "Apple Inc.",
+  "ticker": "AAPL",
+  "companyDescription": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.",
+  "maxSupply": 10000000000000000000000,
+  "initialOwner": "0x18778f39Bb22A12d329faEab0969ef3A9a99E3ee",
+  "enableTrading": true,
+  "assetRegistry": "0x0000000000000000000000000000000000000000"
+}

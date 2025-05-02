@@ -1,0 +1,43 @@
+# Add commonly ignored directories and files in Solidity projects
+cat > .gitignore << EOL
+# Node.js dependencies
+node_modules/
+node_modules/**
+
+# Hardhat artifacts
+cache/
+artifacts/
+
+# Foundry artifacts
+out/
+cache_forge/
+broadcast/
+
+# IDE files
+.idea/
+.vscode/
+
+# Environment variables
+.env
+.env.local
+
+# Debug logs
+*.log
+logs/
+
+# Coverage reports
+coverage/
+coverage.json
+
+# Mac OS files
+.DS_Store
+
+# Build files
+dist/
+build/
+
+# Temporary files
+*.swp
+*.swo
+*~
+EOL.github/workflows/test.yml

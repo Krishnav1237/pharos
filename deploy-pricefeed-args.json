@@ -1,0 +1,13 @@
+{
+  "defaultHeartbeat": 86400,
+  "deviationTolerance": 200,
+  "emergencyDeviationThreshold": 1000,
+  "manualPriceUpdateDelay": 1800,
+  "priceUpdaters": [
+    "0x1111111111111111111111111111111111111111",
+    "0x2222222222222222222222222222222222222222"
+  ],
+  "emergencyOperators": [
+    "0x3333333333333333333333333333333333333333"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "pharos-exchange",
+  "version": "1.0.0",
+  "description": "DeFi exchange contracts for Pharos",
+  "main": "index.js",
+  "scripts": {
+    "test": "forge test",
+    "compile": "forge build",
+    "deploy": "forge script script/Deploy.s.sol --rpc-url $PHAROS_RPC_URL --private-key $PRIVATE_KEY --broadcast",
+    "deploy:local": "forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast",
+    "node": "anvil",
+    "lint": "solhint 'src/**/*.sol'",
+    "coverage": "forge coverage",
+    "gas-report": "forge test --gas-report"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.8.0",
+    "@openzeppelin/contracts": "^5.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1",
+    "solhint": "^3.4.1"
+  }
+}

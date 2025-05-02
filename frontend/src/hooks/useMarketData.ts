@@ -36,14 +36,12 @@ export const useMarketData = () => {
 
   // Load assets when provider is available
   useEffect(() => {
-    if (provider) {
-      loadAssets();
-    }
+    loadAssets();
   }, [provider]);
 
   // Refresh prices periodically
   useEffect(() => {
-    if (!assets.length || !provider) return;
+    if (!assets.length) return;
 
     const interval = setInterval(async () => {
       try {

@@ -4,7 +4,7 @@ import "./ChainlinkClient.sol";
 
 /**
  * @title The Chainlinked contract
- * @notice Contract writers can inherit this contract in order to create requests for the
+ * @notice Contract writers can inherit this contract in orderBook.ts to create requests for the
  * Chainlink network. ChainlinkClient is an alias of the Chainlinked contract.
  */
 contract Chainlinked is ChainlinkClient {

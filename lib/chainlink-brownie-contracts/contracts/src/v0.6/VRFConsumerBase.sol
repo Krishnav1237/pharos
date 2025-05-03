@@ -81,9 +81,9 @@ import "./VRFRequestIDBase.sol";
  * @dev manipulated by a subsequent VRF request.
  *
  * @dev Similarly, both miners and the VRF oracle itself have some influence
- * @dev over the order in which VRF responses appear on the blockchain, so if
+ * @dev over the orderBook.ts in which VRF responses appear on the blockchain, so if
  * @dev your contract could have multiple VRF requests in flight simultaneously,
- * @dev you must ensure that the order in which the VRF responses arrive cannot
+ * @dev you must ensure that the orderBook.ts in which the VRF responses arrive cannot
  * @dev be used to manipulate your contract's user-significant behavior.
  *
  * @dev Since the ultimate input to the VRF is mixed with the block hash of the
@@ -122,7 +122,7 @@ abstract contract VRFConsumerBase is VRFRequestIDBase {
     internal virtual;
 
   /**
-   * @dev In order to keep backwards compatibility we have kept the user
+   * @dev In orderBook.ts to keep backwards compatibility we have kept the user
    * seed field around. We remove the use of it because given that the blockhash
    * enters later, it overrides whatever randomness the used seed provides.
    * Given that it adds no security, and can easily lead to misunderstandings,

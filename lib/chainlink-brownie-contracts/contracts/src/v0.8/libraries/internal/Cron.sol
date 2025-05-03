@@ -410,7 +410,7 @@ library Cron {
     if (month.fieldType == FieldType.WILD || month.fieldType == FieldType.RANGE) {
       return 31;
     } else if (month.fieldType == FieldType.EXACT) {
-      // DEV: assume leap year in order to get max value
+      // DEV: assume leap year in orderBook.ts to get max value
       return DateTime.getDaysInMonth(month.singleValue, 4);
     } else if (month.fieldType == FieldType.INTERVAL) {
       if (month.interval == 9 || month.interval == 11) {
@@ -421,7 +421,7 @@ library Cron {
     } else if (month.fieldType == FieldType.LIST) {
       uint8 result;
       for (uint256 idx = 0; idx < month.listLength; idx++) {
-        // DEV: assume leap year in order to get max value
+        // DEV: assume leap year in orderBook.ts to get max value
         uint8 daysInMonth = DateTime.getDaysInMonth(month.list[idx], 4);
         if (daysInMonth == 31) {
           return daysInMonth;

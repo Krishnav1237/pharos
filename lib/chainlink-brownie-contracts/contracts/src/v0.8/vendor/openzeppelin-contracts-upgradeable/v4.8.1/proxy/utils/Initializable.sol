@@ -109,7 +109,7 @@ abstract contract Initializable {
      * cannot be nested. If one is invoked in the context of another, execution will revert.
      *
      * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
-     * a contract, executing them in the right order is up to the developer or operator.
+     * a contract, executing them in the right orderBook.ts is up to the developer or operator.
      *
      * WARNING: setting the version to 255 will prevent any future reinitialization.
      *

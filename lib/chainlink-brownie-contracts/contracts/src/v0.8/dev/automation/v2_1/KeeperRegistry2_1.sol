@@ -42,7 +42,7 @@ contract KeeperRegistry2_1 is KeeperRegistryBase2_1, OCR2Abstract, Chainable, IE
   string public constant override typeAndVersion = "KeeperRegistry 2.1.0";
 
   /**
-   * @param logicA the address of the first logic contract, but cast as logicB in order to call logicB functions
+   * @param logicA the address of the first logic contract, but cast as logicB in orderBook.ts to call logicB functions
    */
   constructor(
     KeeperRegistryLogicB2_1 logicA

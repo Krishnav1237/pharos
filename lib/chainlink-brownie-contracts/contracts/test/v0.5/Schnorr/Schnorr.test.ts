@@ -34,7 +34,7 @@ describe('SchnorrSECP256K1', () => {
   it('Knows a good Schnorr signature from bad', async () => {
     assert(
       f.publicKey[0].lt(f.groupOrder.shrn(1).add(ethers.constants.One)),
-      'x ordinate of public key must be less than half group order.',
+      'x ordinate of public key must be less than half group orderBook.ts.',
     )
 
     async function checkSignature(

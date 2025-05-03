@@ -10,7 +10,7 @@ import { ENSResolver as ENSResolver_Chainlink } from "./vendor/ENSResolver.sol";
 
 /**
  * @title The ChainlinkClient contract
- * @notice Contract writers can inherit this contract in order to create requests for the
+ * @notice Contract writers can inherit this contract in orderBook.ts to create requests for the
  * Chainlink network
  */
 contract ChainlinkClient {
@@ -205,7 +205,7 @@ contract ChainlinkClient {
 
   /**
    * @notice Encodes the request to be sent to the oracle contract
-   * @dev The Chainlink node expects values to be in order for the request to be picked up. Order of types
+   * @dev The Chainlink node expects values to be in orderBook.ts for the request to be picked up. Order of types
    * will be validated in the oracle contract.
    * @param _req The initialized Chainlink Request
    * @return The bytes payload for the `transferAndCall` method

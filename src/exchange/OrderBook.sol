@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title OrderBook
- * @dev Optimized order book for decentralized token exchange
+ * @dev Optimized orderBook.ts book for decentralized token exchange
  */
 contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     // ============ Enums ============
@@ -49,7 +49,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     mapping(bytes32 => AssetPair) public assetPairs;
     bytes32[] public assetPairKeys;
 
-    // Optimized order storage
+    // Optimized orderBook.ts storage
     mapping(bytes32 => mapping(uint256 => uint256[])) public sellOrders;
     mapping(bytes32 => mapping(uint256 => uint256[])) public buyOrders;
     mapping(bytes32 => uint256[]) public sellPricePoints;
@@ -59,7 +59,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     address public feeCollector;
     address public matchingEngine;
 
-    // New mappings for trader orders and order times
+    // New mappings for trader orders and orderBook.ts times
     mapping(address => uint256[]) private traderOrders;
     mapping(address => mapping(bytes32 => uint256[])) private traderPairOrders;
 
@@ -163,7 +163,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     // ============ Order Management Functions ============
 
     /**
-     * @dev Private implementation of order creation logic
+     * @dev Private implementation of orderBook.ts creation logic
      */
     function _createOrderInternal(
         address _tokenAsset,
@@ -232,7 +232,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
         traderOrders[msg.sender].push(orderId);
         traderPairOrders[msg.sender][pairKey].push(orderId);
 
-        // Add limit orders to the order book
+        // Add limit orders to the orderBook.ts book
         if (_orderType == OrderType.LIMIT) {
             _addToOrderBook(pairKey, orders[orderId]);
         }
@@ -252,7 +252,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Creates a new order with default expiry
+     * @dev Creates a new orderBook.ts with default expiry
      */
     function createOrder(
         address _tokenAsset,
@@ -274,7 +274,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Creates a new order with optional expiry
+     * @dev Creates a new orderBook.ts with optional expiry
      */
     function createOrderWithExpiry(
         address _tokenAsset,
@@ -297,7 +297,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Optimized function to add order to book with binary insertion
+     * @dev Optimized function to add orderBook.ts to book with binary insertion
      */
     function _addToOrderBook(bytes32 _pairKey, Order storage _order) internal {
         uint256[] storage pricePoints;
@@ -356,7 +356,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
             }
         }
 
-        // Add order to list for this price
+        // Add orderBook.ts to list for this price
         if (_order.side == OrderSide.BUY) {
             buyOrders[_pairKey][_order.price].push(_order.id);
         } else {
@@ -365,7 +365,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Cancel an order
+     * @dev Cancel an orderBook.ts
      */
     function cancelOrder(uint256 _orderId) external nonReentrant {
         Order storage order = orders[_orderId];
@@ -423,14 +423,14 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Efficient removal from order book
+     * @dev Efficient removal from orderBook.ts book
      */
     function _removeFromOrderBook(bytes32 _pairKey, Order storage _order) internal {
         uint256[] storage priceOrders = _order.side == OrderSide.BUY ?
             buyOrders[_pairKey][_order.price] :
             sellOrders[_pairKey][_order.price];
 
-        // Find and remove the order with swap and pop
+        // Find and remove the orderBook.ts with swap and pop
         for (uint i = 0; i < priceOrders.length; i++) {
             if (priceOrders[i] == _order.id) {
                 if (i < priceOrders.length - 1) {
@@ -481,11 +481,11 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
 
         while (i <= j) {
             if (side == OrderSide.BUY) {
-                // Descending order for buy prices
+                // Descending orderBook.ts for buy prices
                 while (arr[uint256(i)] > pivot) i++;
                 while (arr[uint256(j)] < pivot) j--;
             } else {
-                // Ascending order for sell prices
+                // Ascending orderBook.ts for sell prices
                 while (arr[uint256(i)] < pivot) i++;
                 while (arr[uint256(j)] > pivot) j--;
             }
@@ -536,7 +536,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
                     }
                 }
 
-                // Remove from order book if it's a limit order
+                // Remove from orderBook.ts book if it's a limit orderBook.ts
                 if (order.orderType == OrderType.LIMIT) {
                     bytes32 pairKey = keccak256(abi.encodePacked(order.tokenAsset, order.paymentAsset));
                     _removeFromOrderBook(pairKey, order);
@@ -548,7 +548,7 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
     }
 
     /**
-     * @dev Updates an order after matching
+     * @dev Updates an orderBook.ts after matching
      */
     function updateOrderAfterMatch(uint256 _orderId, uint256 _filledAmount)
     external
@@ -566,11 +566,11 @@ contract OrderBook is Ownable, ReentrancyGuard, Pausable {
         // Update filled amount
         order.filled += _filledAmount;
 
-        // Update order status
+        // Update orderBook.ts status
         if (order.filled == order.amount) {
             order.status = OrderStatus.FILLED;
 
-            // Remove from order book if it's a limit order
+            // Remove from orderBook.ts book if it's a limit orderBook.ts
             if (order.orderType == OrderType.LIMIT) {
                 bytes32 pairKey = keccak256(abi.encodePacked(order.tokenAsset, order.paymentAsset));
                 _removeFromOrderBook(pairKey, order);

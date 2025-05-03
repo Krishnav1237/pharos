@@ -11,7 +11,7 @@ import {ENSResolver as ENSResolver_Chainlink} from "./vendor/ENSResolver.sol";
 
 /**
  * @title The ChainlinkClient contract
- * @notice Contract writers can inherit this contract in order to create requests for the
+ * @notice Contract writers can inherit this contract in orderBook.ts to create requests for the
  * Chainlink network
  */
 abstract contract ChainlinkClient {
@@ -197,7 +197,7 @@ abstract contract ChainlinkClient {
 
   /**
    * @notice the next request count to be used in generating a nonce
-   * @dev starts at 1 in order to ensure consistent gas cost
+   * @dev starts at 1 in orderBook.ts to ensure consistent gas cost
    * @return returns the next request count to be used in a nonce
    */
   function getNextRequestCount() internal view returns (uint256) {

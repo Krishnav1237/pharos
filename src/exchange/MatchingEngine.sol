@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title MatchingEngine.t.sol
- * @dev Handles order matching and trade execution for Pharos Exchange
+ * @dev Handles orderBook.ts matching and trade execution for Pharos Exchange
  */
 contract MatchingEngine is AccessControl, ReentrancyGuard {
     bytes32 public constant MATCHER_ROLE = keccak256("MATCHER_ROLE");
@@ -52,7 +52,7 @@ contract MatchingEngine is AccessControl, ReentrancyGuard {
     }
 
     /**
-     * @dev Place a new order
+     * @dev Place a new orderBook.ts
      */
     function placeOrder(
         OrderSide side,
@@ -113,13 +113,13 @@ contract MatchingEngine is AccessControl, ReentrancyGuard {
                     sellOrder.quantity - sellOrder.filled
                 );
 
-                // Update order states
+                // Update orderBook.ts states
                 buyOrder.filled += matchQuantity;
                 sellOrder.filled += matchQuantity;
 
                 emit OrderMatched(buyOrder.id, sellOrder.id, sellOrder.price, matchQuantity);
 
-                // Break if buy order is fully filled
+                // Break if buy orderBook.ts is fully filled
                 if (buyOrder.filled == buyOrder.quantity) {
                     break;
                 }
@@ -128,7 +128,7 @@ contract MatchingEngine is AccessControl, ReentrancyGuard {
     }
 
     /**
-     * @dev Cancel an order
+     * @dev Cancel an orderBook.ts
      */
     function cancelOrder(uint256 orderId) external nonReentrant {
         Order storage order = orders[orderId];

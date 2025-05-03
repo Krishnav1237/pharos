@@ -150,7 +150,7 @@ interface IERC721Enumerable is IERC721 {
     /// @dev Throws if `_index` >= `totalSupply()`.
     /// @param _index A counter less than `totalSupply()`
     /// @return The token identifier for the `_index`th NFT,
-    /// (sort order not specified)
+    /// (sort orderBook.ts not specified)
     function tokenByIndex(uint256 _index) external view returns (uint256);
 
     /// @notice Enumerate NFTs assigned to an owner
@@ -159,6 +159,6 @@ interface IERC721Enumerable is IERC721 {
     /// @param _owner An address where we are interested in NFTs owned by them
     /// @param _index A counter less than `balanceOf(_owner)`
     /// @return The token identifier for the `_index`th NFT assigned to `_owner`,
-    /// (sort order not specified)
+    /// (sort orderBook.ts not specified)
     function tokenOfOwnerByIndex(address _owner, uint256 _index) external view returns (uint256);
 }

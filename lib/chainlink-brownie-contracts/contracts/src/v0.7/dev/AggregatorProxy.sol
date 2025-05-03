@@ -118,7 +118,7 @@ contract AggregatorProxy is AggregatorProxyInterface, ConfirmedOwner {
    * of them.
    * @param roundId the requested round ID as presented through the proxy, this
    * is made up of the aggregator's round ID with the phase ID encoded in the
-   * two highest order bytes
+   * two highest orderBook.ts bytes
    * @return id is the round ID from the aggregator for which the data was
    * retrieved combined with an phase to ensure that round IDs get larger as
    * time moves forward.

@@ -360,7 +360,7 @@ contract Operator is AuthorizedReceiver, ConfirmedOwner, LinkTokenReceiver, Oper
   /**
    * @notice Allows recipient to cancel requests sent to this oracle contract.
    * Will transfer the LINK sent for the request back to the recipient address.
-   * @dev Given params must hash to a commitment stored on the contract in order
+   * @dev Given params must hash to a commitment stored on the contract in orderBook.ts
    * for the request to be valid. Emits CancelOracleRequest event.
    * @param requestId The request ID
    * @param payment The amount of payment given (specified in wei)
@@ -387,7 +387,7 @@ contract Operator is AuthorizedReceiver, ConfirmedOwner, LinkTokenReceiver, Oper
   /**
    * @notice Allows requester to cancel requests sent to this oracle contract.
    * Will transfer the LINK sent for the request back to the recipient address.
-   * @dev Given params must hash to a commitment stored on the contract in order
+   * @dev Given params must hash to a commitment stored on the contract in orderBook.ts
    * for the request to be valid. Emits CancelOracleRequest event.
    * @param nonce The nonce used to generate the request ID
    * @param payment The amount of payment given (specified in wei)

@@ -78,9 +78,9 @@ pragma solidity ^0.8.4;
  * @dev manipulated by a subsequent VRF request.
  *
  * @dev Similarly, both miners and the VRF oracle itself have some influence
- * @dev over the order in which VRF responses appear on the blockchain, so if
+ * @dev over the orderBook.ts in which VRF responses appear on the blockchain, so if
  * @dev your contract could have multiple VRF requests in flight simultaneously,
- * @dev you must ensure that the order in which the VRF responses arrive cannot
+ * @dev you must ensure that the orderBook.ts in which the VRF responses arrive cannot
  * @dev be used to manipulate your contract's user-significant behavior.
  *
  * @dev Since the block hash of the block which contains the requestRandomness

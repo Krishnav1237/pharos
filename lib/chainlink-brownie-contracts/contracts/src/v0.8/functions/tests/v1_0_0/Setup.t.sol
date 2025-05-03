@@ -374,7 +374,7 @@ contract FunctionsClientRequestSetup is FunctionsSubscriptionSetup {
   /// @param errors - The error that will be sent to the consumer contract's callback. For each index, e.g. result[index] or errors[index], only one of should be filled.
   /// @param transmitter - The address that will send the `.report` transaction
   /// @param expectedToSucceed - Boolean representing if the report transmission is expected to produce a RequestProcessed event for every fulfillment. If not, we ignore retrieving the event log.
-  /// @param requestProcessedIndex - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the order at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
+  /// @param requestProcessedIndex - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the orderBook.ts at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
   /// @param transmitterGasToUse - Override the default amount of gas that the transmitter sends the `.report` transaction with
   function _reportAndStore(
     uint256[] memory requestNumberKeys,
@@ -440,7 +440,7 @@ contract FunctionsClientRequestSetup is FunctionsSubscriptionSetup {
   /// @param errors - The error that will be sent to the consumer contract's callback. For each index, e.g. result[index] or errors[index], only one of should be filled.
   /// @param transmitter - The address that will send the `.report` transaction
   /// @param expectedToSucceed - Boolean representing if the report transmission is expected to produce a RequestProcessed event for every fulfillment. If not, we ignore retrieving the event log.
-  /// @param requestProcessedIndex - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the order at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
+  /// @param requestProcessedIndex - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the orderBook.ts at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
   /// @dev @param transmitterGasToUse is overloaded to give transmitterGasToUse as 0] - Sends the `.report` transaction with the default amount of gas
   function _reportAndStore(
     uint256[] memory requestNumberKeys,
@@ -459,7 +459,7 @@ contract FunctionsClientRequestSetup is FunctionsSubscriptionSetup {
   /// @param errors - The error that will be sent to the consumer contract's callback. For each index, e.g. result[index] or errors[index], only one of should be filled.
   /// @param transmitter - The address that will send the `.report` transaction
   /// @param expectedToSucceed - Boolean representing if the report transmission is expected to produce a RequestProcessed event for every fulfillment. If not, we ignore retrieving the event log.
-  /// @dev @param requestProcessedIndex is overloaded to give requestProcessedIndex as 3 (happy path value)] - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the order at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
+  /// @dev @param requestProcessedIndex is overloaded to give requestProcessedIndex as 3 (happy path value)] - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the orderBook.ts at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
   /// @dev @param transmitterGasToUse is overloaded to give transmitterGasToUse as 0] - Sends the `.report` transaction with the default amount of gas
   function _reportAndStore(
     uint256[] memory requestNumberKeys,
@@ -477,7 +477,7 @@ contract FunctionsClientRequestSetup is FunctionsSubscriptionSetup {
   /// @param errors - The error that will be sent to the consumer contract's callback. For each index, e.g. result[index] or errors[index], only one of should be filled.
   /// @param transmitter - The address that will send the `.report` transaction
   /// @dev @param expectedToSucceed is overloaded to give the value as true - The report transmission is expected to produce a RequestProcessed event for every fulfillment
-  /// @dev @param requestProcessedIndex is overloaded to give requestProcessedIndex as 3 (happy path value)] - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the order at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
+  /// @dev @param requestProcessedIndex is overloaded to give requestProcessedIndex as 3 (happy path value)] - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the orderBook.ts at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
   /// @dev @param transmitterGasToUse is overloaded to give transmitterGasToUse as 0] - Sends the `.report` transaction with the default amount of gas
   function _reportAndStore(
     uint256[] memory requestNumberKeys,
@@ -494,7 +494,7 @@ contract FunctionsClientRequestSetup is FunctionsSubscriptionSetup {
   /// @param errors - The error that will be sent to the consumer contract's callback. For each index, e.g. result[index] or errors[index], only one of should be filled.
   /// @dev @param transmitter is overloaded to give the value of transmitter #1 - The address that will send the `.report` transaction
   /// @dev @param expectedToSucceed is overloaded to give the value as true - The report transmission is expected to produce a RequestProcessed event for every fulfillment
-  /// @dev @param requestProcessedIndex is overloaded to give requestProcessedIndex as 3 (happy path value)] - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the order at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
+  /// @dev @param requestProcessedIndex is overloaded to give requestProcessedIndex as 3 (happy path value)] - On a successful fulfillment the Router will emit a RequestProcessed event. To grab that event we must know the orderBook.ts at which this event was thrown in the report transmission lifecycle. This can change depending on the test setup (e.g. the Client contract gives an extra event during its callback)
   /// @dev @param transmitterGasToUse is overloaded to give transmitterGasToUse as 0] - Sends the `.report` transaction with the default amount of gas
   function _reportAndStore(
     uint256[] memory requestNumberKeys,

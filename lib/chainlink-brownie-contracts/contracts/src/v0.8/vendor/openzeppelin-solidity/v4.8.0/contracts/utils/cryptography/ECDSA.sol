@@ -38,7 +38,7 @@ library ECDSA {
    *
    * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
    * this function rejects them by requiring the `s` value to be in the lower
-   * half order, and the `v` value to be either 27 or 28.
+   * half orderBook.ts, and the `v` value to be either 27 or 28.
    *
    * IMPORTANT: `hash` _must_ be the result of a hash operation for the
    * verification to be secure: it is possible to craft signatures that
@@ -77,7 +77,7 @@ library ECDSA {
    *
    * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
    * this function rejects them by requiring the `s` value to be in the lower
-   * half order, and the `v` value to be either 27 or 28.
+   * half orderBook.ts, and the `v` value to be either 27 or 28.
    *
    * IMPORTANT: `hash` _must_ be the result of a hash operation for the
    * verification to be secure: it is possible to craft signatures that
@@ -125,7 +125,7 @@ library ECDSA {
     // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
     // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
     // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
-    // signatures from current libraries generate a unique signature with an s-value in the lower half order.
+    // signatures from current libraries generate a unique signature with an s-value in the lower half orderBook.ts.
     //
     // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
     // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or

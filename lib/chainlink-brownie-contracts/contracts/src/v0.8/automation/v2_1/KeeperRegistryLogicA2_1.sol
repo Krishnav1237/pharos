@@ -329,7 +329,7 @@ contract KeeperRegistryLogicA2_1 is KeeperRegistryBase2_1, Chainable {
    * @notice migrates upkeeps from one registry to another
    * @param ids the upkeepIDs to migrate
    * @param destination the destination registry address
-   * @dev a transcoder must be set in order to enable migration
+   * @dev a transcoder must be set in orderBook.ts to enable migration
    * @dev migration permissions must be set on *both* sending and receiving registries
    * @dev only an upkeep admin can migrate their upkeeps
    */

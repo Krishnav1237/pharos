@@ -10,7 +10,7 @@ import { ENSResolver as ENSResolver_Chainlink } from "../vendor/ENSResolver.sol"
 
 /**
  * @title The ChainlinkClient contract
- * @notice Contract writers can inherit this contract in order to create requests for the
+ * @notice Contract writers can inherit this contract in orderBook.ts to create requests for the
  * Chainlink network
  */
 contract ChainlinkClient {

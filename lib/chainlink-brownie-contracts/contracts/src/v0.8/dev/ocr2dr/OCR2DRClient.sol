@@ -7,7 +7,7 @@ import "../interfaces/OCR2DROracleInterface.sol";
 
 /**
  * @title The OCR2DR client contract
- * @notice Contract writers can inherit this contract in order to create on-demand OCR requests
+ * @notice Contract writers can inherit this contract in orderBook.ts to create on-demand OCR requests
  */
 abstract contract OCR2DRClient is OCR2DRClientInterface {
   OCR2DROracleInterface private s_oracle;

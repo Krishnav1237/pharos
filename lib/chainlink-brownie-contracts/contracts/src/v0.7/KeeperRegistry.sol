@@ -638,7 +638,7 @@ contract KeeperRegistry is
    * @dev retrieves feed data for fast gas/eth and link/eth prices. if the feed
    * data is stale it uses the configured fallback price. Once a price is picked
    * for gas it takes the min of gas price in the transaction or the fast gas
-   * price in order to reduce costs for the upkeep clients.
+   * price in orderBook.ts to reduce costs for the upkeep clients.
    */
   function getFeedData() private view returns (uint256 gasWei, uint256 linkEth) {
     uint32 stalenessSeconds = s_config.stalenessSeconds;

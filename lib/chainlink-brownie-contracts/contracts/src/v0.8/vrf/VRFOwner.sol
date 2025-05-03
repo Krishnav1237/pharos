@@ -288,7 +288,7 @@ contract VRFOwner is ConfirmedOwner, AuthorizedReceiver {
     // calling setConfigPrivate.
     Config memory cfg = getConfigs();
 
-    // call setConfigPrivate with the appropriate params in order to fulfill
+    // call setConfigPrivate with the appropriate params in orderBook.ts to fulfill
     // an accidentally-underfunded request.
     setConfigPrivate(
       cfg.minimumRequestConfirmations,

@@ -113,7 +113,7 @@ export interface RunRequest {
  * ```
  * method on an Oracle.sol contract.
  *
- * @param runRequest The run request to flatten into the correct order to perform the `fulfillOracleRequest` function
+ * @param runRequest The run request to flatten into the correct orderBook.ts to perform the `fulfillOracleRequest` function
  * @param response The response to fulfill the run request with, if it is an ascii string, it is converted to bytes32 string
  * @param txOpts Additional ethereum tx options
  */
@@ -154,7 +154,7 @@ export function convertFufillParams(
  * ```
  * method on an Oracle.sol contract.
  *
- * @param runRequest The run request to flatten into the correct order to perform the `fulfillOracleRequest` function
+ * @param runRequest The run request to flatten into the correct orderBook.ts to perform the `fulfillOracleRequest` function
  * @param response The response to fulfill the run request with, if it is an ascii string, it is converted to bytes32 string
  * @param txOpts Additional ethereum tx options
  */
@@ -195,7 +195,7 @@ export function convertFulfill2Params(
  * ```
  * method on an Oracle.sol contract.
  *
- * @param runRequest The run request to flatten into the correct order to perform the `cancelOracleRequest` function
+ * @param runRequest The run request to flatten into the correct orderBook.ts to perform the `cancelOracleRequest` function
  * @param txOpts Additional ethereum tx options
  */
 export function convertCancelParams(

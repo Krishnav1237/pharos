@@ -26,7 +26,7 @@ import "./ECDSA.sol";
  */
 abstract contract EIP712 {
   /* solhint-disable var-name-mixedcase */
-  // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+  // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in orderBook.ts to
   // invalidate the cached domain separator if the chain id changes.
   bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
   uint256 private immutable _CACHED_CHAIN_ID;

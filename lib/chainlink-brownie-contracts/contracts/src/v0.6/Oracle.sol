@@ -216,7 +216,7 @@ contract Oracle is ChainlinkRequestInterface, OracleInterface, Ownable, LinkToke
   /**
    * @notice Allows requesters to cancel requests sent to this oracle contract. Will transfer the LINK
    * sent for the request back to the requester's address.
-   * @dev Given params must hash to a commitment stored on the contract in order for the request to be valid
+   * @dev Given params must hash to a commitment stored on the contract in orderBook.ts for the request to be valid
    * Emits CancelOracleRequest event.
    * @param _requestId The request ID
    * @param _payment The amount of payment given (specified in wei)

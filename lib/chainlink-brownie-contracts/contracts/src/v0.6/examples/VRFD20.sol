@@ -65,9 +65,9 @@ contract VRFD20 is VRFConsumerBase, Owned {
      * @notice Callback function used by VRF Coordinator to return the random number
      * to this contract.
      * @dev Some action on the contract state should be taken here, like storing the result.
-     * @dev WARNING: take care to avoid having multiple VRF requests in flight if their order of arrival would result
+     * @dev WARNING: take care to avoid having multiple VRF requests in flight if their orderBook.ts of arrival would result
      * in contract states with different outcomes. Otherwise miners or the VRF operator would could take advantage
-     * by controlling the order.
+     * by controlling the orderBook.ts.
      * @dev The VRF Coordinator will only send this function verified responses, and the parent VRFConsumerBase
      * contract ensures that this method only receives randomness from the designated VRFCoordinator.
      *

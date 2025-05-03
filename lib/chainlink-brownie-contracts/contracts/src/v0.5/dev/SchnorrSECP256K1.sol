@@ -6,7 +6,7 @@ pragma solidity ^0.5.0;
 
 contract SchnorrSECP256K1 {
   // See https://en.bitcoin.it/wiki/Secp256k1 for this constant.
-  uint256 constant public Q = // Group order of secp256k1
+  uint256 constant public Q = // Group orderBook.ts of secp256k1
     // solium-disable-next-line indentation
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
   // solium-disable-next-line zeppelin/no-arithmetic-operations
@@ -85,7 +85,7 @@ contract SchnorrSECP256K1 {
       ecrecover's defense anyway. And since we are abusing ecrecover by putting
       signingPubKeyX in ecrecover's "s" argument the constraint applies to
       signingPubKeyX, even though it represents a value in the base field, and
-      has no natural relationship to the order of the curve's cyclic group.
+      has no natural relationship to the orderBook.ts of the curve's cyclic group.
       **************************************************************************
       @param signingPubKeyX is the x ordinate of the public key. This must be
              less than HALF_Q. 

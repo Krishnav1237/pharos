@@ -424,7 +424,7 @@ contract VRF {
   // The draft calls (in step 7, via the definition of string_to_int, in
   // https://datatracker.ietf.org/doc/html/rfc8017#section-4.2 ) for taking the
   // first hash without checking that it corresponds to a number less than the
-  // group order, which will lead to a slight bias in the sample.
+  // group orderBook.ts, which will lead to a slight bias in the sample.
   //
   // TODO(alx): We could save a bit of gas by following the standard here and
   // using the compressed representation of the points, if we collated the y

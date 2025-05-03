@@ -20,7 +20,7 @@ interface MigratableKeeperRegistryInterfaceV2 {
   function receiveUpkeeps(bytes calldata encodedUpkeeps) external;
 
   /**
-   * @notice Specifies the version of upkeep data that this registry requires in order to import
+   * @notice Specifies the version of upkeep data that this registry requires in orderBook.ts to import
    */
   function upkeepVersion() external view returns (uint8 version);
 }

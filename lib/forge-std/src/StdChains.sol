@@ -146,7 +146,7 @@ abstract contract StdChains {
         return string(copy);
     }
 
-    // lookup rpcUrl, in descending order of priority:
+    // lookup rpcUrl, in descending orderBook.ts of priority:
     // current -> config (foundry.toml) -> environment variable -> default
     function getChainWithUpdatedRpcUrl(string memory chainAlias, Chain memory chain)
         private

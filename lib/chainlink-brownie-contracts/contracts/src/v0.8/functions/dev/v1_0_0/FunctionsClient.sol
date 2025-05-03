@@ -7,7 +7,7 @@ import {IFunctionsClient} from "./interfaces/IFunctionsClient.sol";
 import {FunctionsRequest} from "./libraries/FunctionsRequest.sol";
 
 /// @title The Chainlink Functions client contract
-/// @notice Contract developers can inherit this contract in order to make Chainlink Functions requests
+/// @notice Contract developers can inherit this contract in orderBook.ts to make Chainlink Functions requests
 abstract contract FunctionsClient is IFunctionsClient {
   using FunctionsRequest for FunctionsRequest.Request;
 

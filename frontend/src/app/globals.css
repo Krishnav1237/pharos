@@ -2,45 +2,216 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 240 50% 99%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 248 90% 66%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 263 92% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 5.9% 10%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 248 90% 66%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 248 90% 66%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 263 92% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 5.9% 10%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 248 90% 66%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-@layer components {
-  .btn-primary {
-    @apply px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors;
+@layer base {
+  * {
+    @apply border-border;
   }
 
-  .btn-secondary {
-    @apply px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors;
-  }
-
-  .card {
-    @apply bg-white rounded-xl shadow-sm overflow-hidden;
-  }
-
-  .section {
-    @apply py-6;
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Add necessary styles for ethereum window type */
-declare global {
-  interface Window {
-    ethereum: any;
-  }
+/* Custom styles for Pharos Exchange */
+.text-gradient-brand {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent;
+}
+
+.bg-gradient-brand {
+  @apply bg-gradient-to-r from-indigo-600 to-purple-600;
+}
+
+/* Buy and sell colors - high contrast for better readability */
+.text-buy {
+  @apply text-success font-medium;
+}
+
+.text-sell {
+  @apply text-destructive font-medium;
+}
+
+.bg-buy {
+  @apply bg-success/10 text-success;
+}
+
+.bg-sell {
+  @apply bg-destructive/10 text-destructive;
+}
+
+/* Price change colors */
+.text-change-positive {
+  @apply text-success;
+}
+
+.text-change-negative {
+  @apply text-destructive;
+}
+
+/* Status badges */
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-primary/10 text-primary;
+}
+
+.badge-success {
+  @apply bg-success/10 text-success;
+}
+
+.badge-warning {
+  @apply bg-warning/10 text-warning-foreground;
+}
+
+.badge-danger {
+  @apply bg-destructive/10 text-destructive;
+}
+
+.badge-info {
+  @apply bg-sky-100 text-sky-800;
+}
+
+/* Authentication and wallet connection styles */
+.wallet-button {
+  @apply flex items-center justify-center px-4 py-2 border rounded-md transition-colors;
+}
+
+.wallet-address {
+  @apply font-mono text-sm;
+}
+
+/* Asset cards and components */
+.asset-card {
+  @apply bg-card text-card-foreground rounded-xl border shadow-sm hover:shadow-md transition-shadow p-6;
+}
+
+.stats-card {
+  @apply bg-card text-card-foreground rounded-xl border shadow-sm p-6;
+}
+
+/* Fix for Ethereum addresses in tables */
+.eth-address {
+  @apply font-mono text-xs sm:text-sm break-all sm:break-normal;
+}
+
+/* Trading interface improvements */
+.order-book-row {
+  @apply grid grid-cols-3 text-sm py-1;
+}
+
+.price-input {
+  @apply block w-full rounded-md border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Chart container */
+.chart-container {
+  @apply h-80 w-full bg-card rounded-xl shadow-sm border p-4;
+}
+
+/* Improve UI for the wallet connection state */
+.wallet-connected {
+  @apply bg-success/10 text-success px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.wallet-disconnected {
+  @apply bg-destructive/10 text-destructive px-2 py-1 rounded-full text-xs font-medium;
+}
+
+/* Ensure price display is more readable */
+.price-display {
+  @apply font-medium text-lg;
+}
+
+.price-large {
+  @apply font-bold text-2xl;
+}
+
+/* Apply to any form elements that need standardization */
+.form-container {
+  @apply space-y-4 p-6 bg-card rounded-xl border shadow-sm;
+}
+
+/* Fix for document elements that don't look right in ENS name */
+.ens-name {
+  word-break: break-all;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }

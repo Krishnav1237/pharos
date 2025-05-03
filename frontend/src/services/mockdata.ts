@@ -1,9 +1,9 @@
 import { Asset, AssetPrice, AssetType, Order, OrderSide, OrderStatus, OrderType } from '@/types/market';
 
-// Mock asset data for development and testing
+// Mock asset data with valid Ethereum addresses
 export const getMockAssets = (): Asset[] => [
   {
-    address: '0xabc123def456',
+    address: '0xabc123def456789abcdef1234567890abcdef123',
     name: 'Apple Inc.',
     symbol: 'AAPL',
     assetType: AssetType.STOCK,
@@ -15,7 +15,7 @@ export const getMockAssets = (): Asset[] => [
     registrationTime: Date.now() / 1000 - 86400 * 30, // 30 days ago
   },
   {
-    address: '0xdef456abc789',
+    address: '0xdef456789abcdef1234567890abcdef123456789',
     name: 'Microsoft Corporation',
     symbol: 'MSFT',
     assetType: AssetType.STOCK,
@@ -27,7 +27,7 @@ export const getMockAssets = (): Asset[] => [
     registrationTime: Date.now() / 1000 - 86400 * 25,
   },
   {
-    address: '0x789abc012def',
+    address: '0x789abcdef1234567890abcdef1234567890abcde',
     name: 'Tesla Inc.',
     symbol: 'TSLA',
     assetType: AssetType.STOCK,
@@ -39,7 +39,7 @@ export const getMockAssets = (): Asset[] => [
     registrationTime: Date.now() / 1000 - 86400 * 20,
   },
   {
-    address: '0x012def345ghi',
+    address: '0x012def3456789abcdef1234567890abcdef12345',
     name: 'Gold Token',
     symbol: 'GOLD',
     assetType: AssetType.COMMODITY,
@@ -53,7 +53,7 @@ export const getMockAssets = (): Asset[] => [
     registrationTime: Date.now() / 1000 - 86400 * 15,
   },
   {
-    address: '0x345ghi678jkl',
+    address: '0x345678abcdef1234567890abcdef1234567890ab',
     name: 'Silver Token',
     symbol: 'SLVR',
     assetType: AssetType.COMMODITY,
@@ -67,7 +67,7 @@ export const getMockAssets = (): Asset[] => [
     registrationTime: Date.now() / 1000 - 86400 * 10,
   },
   {
-    address: '0x678jkl901mno',
+    address: '0x678901abcdef1234567890abcdef1234567890ab',
     name: 'Crude Oil Token',
     symbol: 'OIL',
     assetType: AssetType.COMMODITY,
@@ -81,7 +81,7 @@ export const getMockAssets = (): Asset[] => [
     registrationTime: Date.now() / 1000 - 86400 * 5,
   },
   {
-    address: '0x901mno234pqr',
+    address: '0x90abcdef1234567890abcdef1234567890abcdef',
     name: 'USD Coin',
     symbol: 'USDC',
     assetType: AssetType.PAYMENT,

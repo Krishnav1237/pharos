@@ -1,4 +1,4 @@
-// src/hooks/walletContext.tsx
+// src/hooks/walletContext.tsx with debugging
 "use client";
 import {
   createContext,
@@ -8,6 +8,7 @@ import {
   useCallback,
 } from "react";
 import { ethers } from "ethers";
+import { useRenderTracker, usePropsChange } from "@/hooks/useRenderTracker";
 
 export interface WalletContextType {
   account: string | null;
@@ -35,7 +36,6 @@ export const WalletContext = createContext<WalletContextType>({
   balance: "0",
 });
 
-// Network names based on chain ID
 const NETWORKS: Record<number, string> = {
   1: "Ethereum Mainnet",
   5: "Goerli Testnet",
@@ -45,11 +45,13 @@ const NETWORKS: Record<number, string> = {
   56: "BNB Smart Chain",
   42161: "Arbitrum One",
   10: "Optimism",
-  // Add more networks as needed
   1337: "Local Development Chain",
 };
 
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
+  // Add render tracking
+  useRenderTracker("WalletProvider");
+
   const [account, setAccount] = useState<string | null>(null);
   const [provider, setProvider] =
     useState<ethers.providers.Web3Provider | null>(null);
@@ -59,25 +61,35 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [balance, setBalance] = useState("0");
   const [networkName, setNetworkName] = useState("");
 
-  // Function to update account details
+  // Debug state changes
+  useEffect(() => {
+    console.log("WalletProvider state:", {
+      account,
+      chainId,
+      isConnecting,
+      balance,
+      networkName,
+      hasProvider: !!provider,
+      hasSigner: !!signer,
+    });
+  }, [account, chainId, isConnecting, balance, networkName, provider, signer]);
+
   const updateAccountDetails = useCallback(
     async (
       ethersProvider: ethers.providers.Web3Provider,
       accountAddress: string
     ) => {
+      console.log("updateAccountDetails called");
       try {
-        // Get network
         const network = await ethersProvider.getNetwork();
         setChainId(network.chainId);
         setNetworkName(
           NETWORKS[network.chainId] || `Unknown Network (${network.chainId})`
         );
 
-        // Get balance
         const accountBalance = await ethersProvider.getBalance(accountAddress);
         setBalance(ethers.utils.formatEther(accountBalance));
 
-        // Set signer
         const ethersSigner = ethersProvider.getSigner();
         setSigner(ethersSigner);
       } catch (error) {
@@ -87,39 +99,49 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // Initialize provider on client-side only
+  // Initialize provider (with debugging)
   useEffect(() => {
-    if (typeof window !== "undefined" && window.ethereum) {
-      try {
-        const ethersProvider = new ethers.providers.Web3Provider(
-          window.ethereum,
-          "any"
-        );
-        setProvider(ethersProvider);
+    console.log("WalletProvider - initial mount");
+    let mounted = true;
 
-        // Check if already connected
-        window.ethereum
-          .request({ method: "eth_accounts" })
-          .then((accounts: string[]) => {
-            if (accounts.length > 0) {
-              const accountAddress = accounts[0];
-              setAccount(accountAddress);
-              updateAccountDetails(ethersProvider, accountAddress);
-            }
-          })
-          .catch((err: Error) => {
-            console.error("Error checking for accounts:", err);
+    const initProvider = async () => {
+      if (typeof window !== "undefined" && window.ethereum && mounted) {
+        try {
+          const ethersProvider = new ethers.providers.Web3Provider(
+            window.ethereum,
+            "any"
+          );
+          setProvider(ethersProvider);
+
+          const accounts = await window.ethereum.request({
+            method: "eth_accounts",
           });
-      } catch (error) {
-        console.error("Error initializing provider:", error);
+          if (accounts.length > 0 && mounted) {
+            const accountAddress = accounts[0];
+            setAccount(accountAddress);
+            updateAccountDetails(ethersProvider, accountAddress);
+          }
+        } catch (error) {
+          console.error("Error initializing provider:", error);
+        }
       }
-    }
+    };
+
+    initProvider();
+
+    return () => {
+      mounted = false;
+      console.log("WalletProvider - cleanup");
+    };
   }, [updateAccountDetails]);
 
-  // Setup event listeners for account and chain changes
+  // Event listeners (with debugging)
   useEffect(() => {
+    console.log("Setting up event listeners");
+
     if (typeof window !== "undefined" && window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
+        console.log("accountsChanged event:", accounts);
         if (accounts.length > 0) {
           const accountAddress = accounts[0];
           setAccount(accountAddress);
@@ -127,7 +149,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
             updateAccountDetails(provider, accountAddress);
           }
         } else {
-          // Disconnected
           setAccount(null);
           setSigner(null);
           setBalance("0");
@@ -135,17 +156,15 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       };
 
       const handleChainChanged = () => {
-        // Reload the page when chain changes
+        console.log("chainChanged event - reloading page");
         window.location.reload();
       };
 
-      // Listen for account changes
       window.ethereum.on("accountsChanged", handleAccountsChanged);
-      // Listen for chain changes
       window.ethereum.on("chainChanged", handleChainChanged);
 
-      // Clean up event listeners
       return () => {
+        console.log("Cleaning up event listeners");
         window.ethereum.removeListener(
           "accountsChanged",
           handleAccountsChanged
@@ -155,7 +174,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [provider, updateAccountDetails]);
 
-  // Connect wallet function
   const connect = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
       alert(
@@ -167,7 +185,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsConnecting(true);
 
-      // Request account access
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
@@ -181,9 +198,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     } catch (error: any) {
-      // Handle specific error cases
       if (error.code === 4001) {
-        // User rejected request
         console.log("User rejected the connection request");
       } else {
         console.error("Error connecting wallet:", error);
@@ -193,32 +208,30 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Disconnect wallet function
   const disconnect = () => {
     setAccount(null);
     setSigner(null);
     setBalance("0");
-
-    // Note: There is no standard method to disconnect wallets in Web3
-    // This is a UI disconnect only, the connection to MetaMask remains
-    // and will reconnect automatically when the page is reloaded
   };
 
+  const contextValue = useCallback(
+    () => ({
+      account,
+      provider,
+      signer,
+      connect,
+      disconnect,
+      chainId,
+      isConnecting,
+      isConnected: !!account,
+      networkName,
+      balance,
+    }),
+    [account, provider, signer, chainId, isConnecting, networkName, balance]
+  );
+
   return (
-    <WalletContext.Provider
-      value={{
-        account,
-        provider,
-        signer,
-        connect,
-        disconnect,
-        chainId,
-        isConnecting,
-        isConnected: !!account,
-        networkName,
-        balance,
-      }}
-    >
+    <WalletContext.Provider value={contextValue()}>
       {children}
     </WalletContext.Provider>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Link from "next/link";
 import { Tab } from "@headlessui/react";
 import {
@@ -18,8 +18,68 @@ import {
   formatDateTime,
   formatPercent,
 } from "@/utils/formatters";
+import { useRenderTracker } from "@/hooks/useRenderTracker";
+
+// Memoized components
+const AssetBalanceRow = memo(({ balance }: { balance: any }) => (
+  <tr className="hover:bg-gray-50">
+    <td className="px-6 py-4 whitespace-nowrap">
+      <div className="flex items-center">
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {balance.asset.symbol}
+          </div>
+          <div className="text-sm text-gray-500">{balance.asset.name}</div>
+        </div>
+      </div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+      {parseFloat(balance.balance).toFixed(6)}
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+      {formatCurrency(balance.balanceUsd)}
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+      <Link
+        href={`/trade/${balance.asset.address}`}
+        className="text-indigo-600 hover:text-indigo-900"
+      >
+        Trade
+      </Link>
+    </td>
+  </tr>
+));
+
+const PortfolioAllocation = memo(
+  ({ balances, totalValue }: { balances: any[]; totalValue: number }) => (
+    <div className="space-y-4">
+      {balances.map((balance) => {
+        const percentage = (balance.balanceUsd / totalValue) * 100;
+        return (
+          <div key={balance.asset.address}>
+            <div className="flex justify-between items-center mb-1">
+              <div className="text-sm font-medium">{balance.asset.symbol}</div>
+              <div className="text-sm text-gray-600">
+                {formatPercent(percentage, 1)}
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(percentage, 100)}%` }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )
+);
 
 export default function PortfolioPage() {
+  // Add render tracking for debugging
+  useRenderTracker("PortfolioPage");
+
   const { account, isConnected, connect } = useWallet();
   const { assets } = useMarketData();
   const { balances, orders, totalValue, isLoading, refreshData } =
@@ -31,31 +91,80 @@ export default function PortfolioPage() {
     null
   );
 
-  // Handle order cancellation
-  const handleCancelOrder = async (orderId: string) => {
-    setCancellingOrderId(orderId);
-    try {
-      await cancelExistingOrder(orderId);
-      refreshData();
-    } catch (err) {
-      console.error("Error cancelling order:", err);
-    } finally {
-      setCancellingOrderId(null);
+  // Stable state to prevent UI flickering
+  const [stableBalances, setStableBalances] = useState(balances);
+  const [stableOrders, setStableOrders] = useState(orders);
+  const [stableTotalValue, setStableTotalValue] = useState(totalValue);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("PortfolioPage state:", {
+      account,
+      isConnected,
+      assetsLength: assets?.length,
+      balancesLength: balances?.length,
+      ordersLength: orders?.length,
+      totalValue,
+      isLoading,
+    });
+  }, [account, isConnected, assets, balances, orders, totalValue, isLoading]);
+
+  // Debounce updates to prevent rapid UI changes
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (!isLoading) {
+      timeoutId = setTimeout(() => {
+        console.log("PortfolioPage - updating stable data");
+        setStableBalances(balances);
+        setStableOrders(orders);
+        setStableTotalValue(totalValue);
+      }, 300);
     }
-  };
 
-  // Filter orders by status
-  const openOrders = orders.filter(
-    (order) =>
-      order.orderStatus === OrderStatus.OPEN ||
-      order.orderStatus === OrderStatus.PARTIAL_FILLED
-  );
+    return () => {
+      if (timeoutId) {
+        console.log("PortfolioPage - clearing timeout");
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [balances, orders, totalValue, isLoading]);
 
-  const completedOrders = orders.filter(
-    (order) =>
-      order.orderStatus === OrderStatus.FILLED ||
-      order.orderStatus === OrderStatus.CANCELLED ||
-      order.orderStatus === OrderStatus.EXPIRED
+  // Memoize order filtering to prevent unnecessary re-renders
+  const openOrders = useCallback(() => {
+    return stableOrders.filter(
+      (order) =>
+        order.orderStatus === OrderStatus.OPEN ||
+        order.orderStatus === OrderStatus.PARTIAL_FILLED
+    );
+  }, [stableOrders]);
+
+  const completedOrders = useCallback(() => {
+    return stableOrders.filter(
+      (order) =>
+        order.orderStatus === OrderStatus.FILLED ||
+        order.orderStatus === OrderStatus.CANCELLED ||
+        order.orderStatus === OrderStatus.EXPIRED
+    );
+  }, [stableOrders]);
+
+  // Handle order cancellation
+  const handleCancelOrder = useCallback(
+    async (orderId: string) => {
+      setCancellingOrderId(orderId);
+      try {
+        await cancelExistingOrder(orderId);
+        // Wait for a moment before refreshing to avoid rapid updates
+        setTimeout(() => {
+          refreshData();
+        }, 1000);
+      } catch (err) {
+        console.error("Error cancelling order:", err);
+      } finally {
+        setCancellingOrderId(null);
+      }
+    },
+    [cancelExistingOrder, refreshData]
   );
 
   // If wallet not connected
@@ -97,7 +206,7 @@ export default function PortfolioPage() {
           <div className="mt-4 sm:mt-0">
             <div className="text-gray-500 text-sm">Total Portfolio Value</div>
             <div className="text-2xl font-bold">
-              {formatCurrency(totalValue)}
+              {formatCurrency(stableTotalValue)}
             </div>
           </div>
         </div>
@@ -111,14 +220,14 @@ export default function PortfolioPage() {
               <h2 className="text-lg font-semibold">Asset Balances</h2>
             </div>
 
-            {isLoading ? (
+            {isLoading && stableBalances.length === 0 ? (
               <div className="p-6 text-center">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
                 <p className="mt-4 text-gray-600">
                   Loading your portfolio data...
                 </p>
               </div>
-            ) : balances.length === 0 ? (
+            ) : stableBalances.length === 0 ? (
               <div className="p-6 text-center">
                 <p className="text-gray-600">
                   No assets found in your portfolio.
@@ -162,38 +271,11 @@ export default function PortfolioPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {balances.map((balance) => (
-                      <tr
+                    {stableBalances.map((balance) => (
+                      <AssetBalanceRow
                         key={balance.asset.address}
-                        className="hover:bg-gray-50"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {balance.asset.symbol}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {balance.asset.name}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
-                          {parseFloat(balance.balance).toFixed(6)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                          {formatCurrency(balance.balanceUsd)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link
-                            href={`/trade/${balance.asset.address}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Trade
-                          </Link>
-                        </td>
-                      </tr>
+                        balance={balance}
+                      />
                     ))}
                   </tbody>
                 </table>
@@ -206,39 +288,19 @@ export default function PortfolioPage() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">Portfolio Allocation</h2>
 
-          {isLoading ? (
+          {isLoading && stableBalances.length === 0 ? (
             <div className="flex justify-center items-center h-48">
               <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
             </div>
-          ) : balances.length === 0 ? (
+          ) : stableBalances.length === 0 ? (
             <div className="text-center p-6">
               <p className="text-gray-600">No assets to display.</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {/* Portfolio allocation bars */}
-              {balances.map((balance) => {
-                const percentage = (balance.balanceUsd / totalValue) * 100;
-                return (
-                  <div key={balance.asset.address}>
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="text-sm font-medium">
-                        {balance.asset.symbol}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {formatPercent(percentage, 1)}
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-indigo-600 h-2.5 rounded-full"
-                        style={{ width: `${Math.min(percentage, 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <PortfolioAllocation
+              balances={stableBalances}
+              totalValue={stableTotalValue}
+            />
           )}
         </div>
       </div>
@@ -250,14 +312,14 @@ export default function PortfolioPage() {
             <h2 className="text-lg font-semibold">Order History</h2>
           </div>
 
-          {isLoading ? (
+          {isLoading && stableOrders.length === 0 ? (
             <div className="p-6 text-center">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
               <p className="mt-4 text-gray-600">
                 Loading your order history...
               </p>
             </div>
-          ) : orders.length === 0 ? (
+          ) : stableOrders.length === 0 ? (
             <div className="p-6 text-center">
               <p className="text-gray-600">No orders found.</p>
             </div>
@@ -273,7 +335,7 @@ export default function PortfolioPage() {
                     }`
                   }
                 >
-                  Open Orders ({openOrders.length})
+                  Open Orders ({openOrders().length})
                 </Tab>
                 <Tab
                   className={({ selected }) =>
@@ -284,7 +346,7 @@ export default function PortfolioPage() {
                     }`
                   }
                 >
-                  Order History ({completedOrders.length})
+                  Order History ({completedOrders().length})
                 </Tab>
               </Tab.List>
 
@@ -292,7 +354,7 @@ export default function PortfolioPage() {
                 {/* Open Orders */}
                 <Tab.Panel>
                   <div className="overflow-x-auto">
-                    {openOrders.length === 0 ? (
+                    {openOrders().length === 0 ? (
                       <div className="p-6 text-center">
                         <p className="text-gray-600">No open orders.</p>
                       </div>
@@ -345,7 +407,7 @@ export default function PortfolioPage() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {openOrders.map((order) => (
+                          {openOrders().map((order) => (
                             <tr key={order.id} className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
@@ -422,7 +484,7 @@ export default function PortfolioPage() {
                 {/* Completed Orders */}
                 <Tab.Panel>
                   <div className="overflow-x-auto">
-                    {completedOrders.length === 0 ? (
+                    {completedOrders().length === 0 ? (
                       <div className="p-6 text-center">
                         <p className="text-gray-600">
                           No completed orders in your history.
@@ -477,7 +539,7 @@ export default function PortfolioPage() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {completedOrders.map((order) => (
+                          {completedOrders().map((order) => (
                             <tr key={order.id} className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span

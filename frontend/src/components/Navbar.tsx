@@ -3,15 +3,20 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useWallet } from "@/hooks/useWallet";
 import { useWalletModal } from "@/hooks/WalletModalContext";
+import { Button } from "@/components/ui/button";
 import {
-  Bars3Icon,
-  XMarkIcon,
-  WalletIcon,
-  ArrowRightOnRectangleIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Wallet, Menu, X, ChevronDown, LogOut } from "lucide-react";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -21,26 +26,17 @@ const navigation = [
 ];
 
 export default function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [walletMenuOpen, setWalletMenuOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { account, disconnect, isConnected, networkName, balance } =
     useWallet();
   const { openModal } = useWalletModal();
 
-  // Close wallet menu when clicking outside
+  // Close mobile menu when route changes
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (walletMenuOpen) {
-        setWalletMenuOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [walletMenuOpen]);
+    setSheetOpen(false);
+  }, [pathname]);
 
   // Format account address for display
   const formatAccount = (address: string) => {
@@ -49,151 +45,120 @@ export default function Navbar() {
     )}`;
   };
 
+  // Handle navigation for mobile menu
+  const handleNavClick = (href: string) => {
+    // Close the sheet first
+    setSheetOpen(false);
+
+    // Use router.push instead of relying on Link
+    setTimeout(() => {
+      router.push(href);
+    }, 100);
+  };
+
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <nav
-        className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8"
-        aria-label="Global"
-      >
-        <div className="flex lg:flex-1">
-          <Link href="/" className="-m-1.5 p-1.5">
-            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
+      <div className="container flex h-16 items-center">
+        <div className="mr-4 flex">
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="font-bold text-2xl text-gradient-brand">
               Pharos
             </span>
           </Link>
         </div>
 
-        <div className="flex lg:hidden">
-          <button
-            type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <span className="sr-only">Open main menu</span>
-            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-          </button>
-        </div>
-
-        <div className="hidden lg:flex lg:gap-x-12">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-4 lg:space-x-6 mx-6">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className={`text-sm font-semibold leading-6 ${
+              className={
                 pathname === item.href
-                  ? "text-indigo-600"
-                  : "text-gray-900 hover:text-indigo-600"
-              }`}
+                  ? "text-sm font-medium text-primary transition-colors"
+                  : "text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              }
             >
               {item.name}
             </Link>
           ))}
-        </div>
+        </nav>
 
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <div className="flex-1 flex justify-end">
           {isConnected && account ? (
-            <div className="flex items-center">
-              <div className="mr-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+            <div className="flex items-center space-x-4">
+              <div className="hidden md:flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 {networkName}
               </div>
 
-              <div className="relative">
-                <button
-                  onClick={() => setWalletMenuOpen(!walletMenuOpen)}
-                  className="flex items-center space-x-1 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
-                >
-                  <WalletIcon className="h-4 w-4 mr-1" />
-                  <span>{formatAccount(account)}</span>
-                  <ChevronDownIcon className="h-4 w-4" />
-                </button>
-
-                {walletMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-                    <div className="p-3 border-b border-gray-200">
-                      <p className="text-sm font-medium text-gray-700">
-                        Wallet
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1 break-all">
-                        {account}
-                      </p>
-                    </div>
-                    <div className="p-3 border-b border-gray-200">
-                      <p className="text-sm text-gray-600">Balance</p>
-                      <p className="text-sm font-medium">
-                        {parseFloat(balance).toFixed(4)} ETH
-                      </p>
-                    </div>
-                    <div className="p-3">
-                      <button
-                        onClick={() => {
-                          disconnect();
-                          setWalletMenuOpen(false);
-                        }}
-                        className="w-full flex items-center justify-center text-sm text-red-600 hover:text-red-800"
-                      >
-                        <ArrowRightOnRectangleIcon className="h-4 w-4 mr-1" />
-                        Disconnect
-                      </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center space-x-1 shadow-none"
+                  >
+                    <Wallet className="mr-2 h-4 w-4" />
+                    <span>{formatAccount(account)}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1.5 text-xs">
+                    <div className="text-muted-foreground mb-1">Address</div>
+                    <div className="font-mono break-all text-sm">{account}</div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1.5 text-xs">
+                    <div className="text-muted-foreground mb-1">Balance</div>
+                    <div className="font-medium text-sm">
+                      {parseFloat(balance).toFixed(4)} ETH
                     </div>
                   </div>
-                )}
-              </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive cursor-pointer"
+                    onClick={disconnect}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Disconnect</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : (
-            <button
-              onClick={openModal}
-              className="relative text-sm font-semibold leading-6 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-            >
-              <WalletIcon className="h-4 w-4 inline mr-1" />
+            <Button onClick={openModal} className="shadow-md">
+              <Wallet className="mr-2 h-4 w-4" />
               Connect Wallet
-            </button>
+            </Button>
           )}
-        </div>
-      </nav>
 
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-white">
-          <div className="fixed inset-0 flex">
-            <div className="w-full">
-              <div className="flex items-center justify-between p-6">
-                <Link
-                  href="/"
-                  className="-m-1.5 p-1.5"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Pharos
-                  </span>
-                </Link>
-                <button
-                  type="button"
-                  className="-m-2.5 rounded-md p-2.5 text-gray-700"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="sr-only">Close menu</span>
-                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                </button>
-              </div>
-              <div className="mt-6 flow-root">
-                <div className="divide-y divide-gray-500/10">
-                  <div className="space-y-2 py-6 px-6">
-                    {navigation.map((item) => (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
-                          pathname === item.href
-                            ? "text-indigo-600 bg-indigo-50"
-                            : "text-gray-900 hover:bg-gray-50"
-                        }`}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="py-6 px-6">
+          {/* Mobile Menu */}
+          <div className="flex md:hidden ml-2">
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="h-9 w-9 p-0">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[80vw] sm:max-w-sm">
+                <div className="flex flex-col space-y-4 py-4">
+                  {navigation.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() => handleNavClick(item.href)}
+                      className={
+                        pathname === item.href
+                          ? "text-sm font-medium text-primary text-left transition-colors"
+                          : "text-sm font-medium text-muted-foreground hover:text-primary text-left transition-colors"
+                      }
+                    >
+                      {item.name}
+                    </button>
+                  ))}
+                  <div className="pt-4 mt-4 border-t">
                     {isConnected && account ? (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
@@ -201,7 +166,7 @@ export default function Navbar() {
                             <p className="text-sm font-medium">
                               {formatAccount(account)}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               {networkName}
                             </p>
                           </div>
@@ -209,36 +174,37 @@ export default function Navbar() {
                             {parseFloat(balance).toFixed(4)} ETH
                           </div>
                         </div>
-                        <button
+                        <Button
+                          variant="outline"
+                          className="w-full text-destructive border-destructive/50"
                           onClick={() => {
                             disconnect();
-                            setMobileMenuOpen(false);
+                            setSheetOpen(false);
                           }}
-                          className="flex w-full items-center justify-center text-sm text-red-600 hover:text-red-800 px-4 py-2 border border-red-100 rounded-lg"
                         >
-                          <ArrowRightOnRectangleIcon className="h-4 w-4 mr-1" />
+                          <LogOut className="mr-2 h-4 w-4" />
                           Disconnect
-                        </button>
+                        </Button>
                       </div>
                     ) : (
-                      <button
+                      <Button
+                        className="w-full"
                         onClick={() => {
                           openModal();
-                          setMobileMenuOpen(false);
+                          setSheetOpen(false);
                         }}
-                        className="text-sm font-semibold leading-6 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 w-full flex items-center justify-center"
                       >
-                        <WalletIcon className="h-4 w-4 mr-2" />
+                        <Wallet className="mr-2 h-4 w-4" />
                         Connect Wallet
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

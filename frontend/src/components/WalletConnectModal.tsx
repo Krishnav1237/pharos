@@ -1,9 +1,16 @@
 "use client";
 
-import { Fragment, useEffect, useState } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { useWallet } from '@/hooks/useWallet';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { Fragment, useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useWallet } from "@/hooks/useWallet";
+import { AlertCircle, Wallet, CheckCircle2, X } from "lucide-react";
 
 // Wallet options with their logos
 const walletOptions = [
@@ -180,10 +187,6 @@ const walletOptions = [
           fill="#EB8F35"
         />
         <path
-          d="M29.217 94.4384L85.3633 72.8228L45.7037 42.7363L29.217 94.4384Z"
-          fill="#EB8F35"
-        />
-        <path
           d="M29.2166 94.4385L12.5127 98.15L41.8348 72.8229L29.2166 94.4385Z"
           fill="#E88F35"
         />
@@ -308,37 +311,34 @@ export default function WalletConnectModal({
   isOpen,
   onClose,
 }: WalletConnectModalProps) {
-  const { connect, isConnecting } = useWallet();
+  const { connect, isConnecting, isConnected } = useWallet();
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
-  const [step, setStep] = useState<"select" | "connecting" | "error">("select");
+  const [step, setStep] = useState<
+    "select" | "connecting" | "error" | "success"
+  >("select");
   const [error, setError] = useState<string | null>(null);
 
-  // Reset state when modal closes
+  // Reset state when modal opens or closes
   useEffect(() => {
     if (!isOpen) {
-      setSelectedWallet(null);
-      setStep("select");
-      setError(null);
+      // Small delay to allow animation to complete
+      setTimeout(() => {
+        setSelectedWallet(null);
+        setStep("select");
+        setError(null);
+      }, 300);
     }
   }, [isOpen]);
 
-  // Listen for wallet connection event
+  // Close modal when connected
   useEffect(() => {
-    const handleConnectRequest = () => {
-      if (!isOpen) {
-        // This event handler can be used to open the modal from anywhere in the app
-        // onOpen();
-      }
-    };
-
-    window.addEventListener("connect-wallet-requested", handleConnectRequest);
-    return () => {
-      window.removeEventListener(
-        "connect-wallet-requested",
-        handleConnectRequest
-      );
-    };
-  }, [isOpen]);
+    if (isConnected && step === "connecting") {
+      setStep("success");
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    }
+  }, [isConnected, step, onClose]);
 
   // Handle wallet selection
   const handleWalletSelect = async (walletId: string) => {
@@ -350,7 +350,7 @@ export default function WalletConnectModal({
       if (walletId === "metamask") {
         if (typeof window !== "undefined" && window.ethereum) {
           await connect();
-          onClose();
+          // The connected state will be handled by the useEffect above
         } else {
           setError(
             "MetaMask not detected. Please install the MetaMask extension and refresh the page."
@@ -358,9 +358,9 @@ export default function WalletConnectModal({
           setStep("error");
         }
       } else {
-        // For other wallets, we'll need to integrate with their specific SDKs
+        // For other wallets, we'll need specific implementations
         setError(
-          "This wallet type is not yet supported. Please use MetaMask for now."
+          `${walletId} wallet support is coming soon. Please use MetaMask for now.`
         );
         setStep("error");
       }
@@ -370,131 +370,132 @@ export default function WalletConnectModal({
     }
   };
 
-  const renderStepContent = () => {
+  const renderContent = () => {
     switch (step) {
       case "select":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-            {walletOptions.map((wallet) => (
-              <button
-                key={wallet.id}
-                className={`flex items-center p-4 rounded-lg border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all ${
-                  wallet.popular ? "bg-indigo-50/50" : "bg-white"
-                }`}
-                onClick={() => handleWalletSelect(wallet.id)}
-                disabled={isConnecting}
-              >
-                <span className="mr-3">{wallet.icon}</span>
-                <div className="text-left">
-                  <h3 className="font-medium text-gray-900">{wallet.name}</h3>
-                  <p className="text-xs text-gray-500">{wallet.description}</p>
-                </div>
-                {wallet.popular && (
-                  <span className="ml-auto text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
-                    Popular
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+          <>
+            <DialogHeader className="space-y-2">
+              <DialogTitle>Connect Wallet</DialogTitle>
+              <DialogDescription>
+                Select a wallet to connect to Pharos Exchange. You'll need to
+                approve the connection request in your wallet.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              {walletOptions.map((wallet) => (
+                <Button
+                  key={wallet.id}
+                  variant="outline"
+                  className={`flex items-center justify-start p-3 h-auto ${
+                    wallet.popular ? "bg-primary/5 border-primary/20" : ""
+                  }`}
+                  onClick={() => handleWalletSelect(wallet.id)}
+                  disabled={isConnecting}
+                >
+                  <span className="mr-3 flex-shrink-0">{wallet.icon}</span>
+                  <div className="text-left min-w-0">
+                    <h3 className="font-medium truncate">{wallet.name}</h3>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {wallet.description}
+                    </p>
+                  </div>
+                  {wallet.popular && (
+                    <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                      Popular
+                    </span>
+                  )}
+                </Button>
+              ))}
+            </div>
+          </>
         );
 
       case "connecting":
         return (
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="animate-spin h-12 w-12 border-4 border-indigo-500 border-t-transparent rounded-full mb-4"></div>
-            <h3 className="text-lg font-medium text-gray-900">
-              Connecting {selectedWallet === "metamask" ? "MetaMask" : "Wallet"}
-            </h3>
-            <p className="text-sm text-gray-500 mt-2">
-              Please check your wallet and approve the connection request
-            </p>
-          </div>
+          <>
+            <DialogHeader className="space-y-2">
+              <DialogTitle>
+                Connecting{" "}
+                {selectedWallet === "metamask" ? "MetaMask" : "Wallet"}
+              </DialogTitle>
+              <DialogDescription>
+                Please check your wallet and approve the connection request
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mb-4"></div>
+              <p className="text-sm text-muted-foreground">
+                Waiting for confirmation...
+              </p>
+            </div>
+          </>
         );
 
       case "error":
         return (
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-              <XMarkIcon className="h-6 w-6 text-red-600" />
+          <>
+            <DialogHeader className="space-y-2">
+              <DialogTitle>Connection Failed</DialogTitle>
+              <DialogDescription>
+                There was an error connecting your wallet
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-destructive/10 mb-4">
+                <AlertCircle className="h-6 w-6 text-destructive" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">Connection Failed</h3>
+              {error && (
+                <p className="text-sm text-muted-foreground text-center mb-6">
+                  {error}
+                </p>
+              )}
+              <Button onClick={() => setStep("select")}>Try Again</Button>
             </div>
-            <h3 className="text-lg font-medium text-gray-900">
-              Connection Failed
-            </h3>
-            {error && (
-              <p className="text-sm text-gray-500 mt-2 text-center">{error}</p>
-            )}
-            <button
-              className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-              onClick={() => setStep("select")}
-            >
-              Try Again
-            </button>
-          </div>
+          </>
+        );
+
+      case "success":
+        return (
+          <>
+            <DialogHeader className="space-y-2">
+              <DialogTitle>Successfully Connected</DialogTitle>
+              <DialogDescription>
+                Your wallet has been connected successfully
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="flex items-center justify-center h-12 w-12 rounded-full bg-success/10 mb-4">
+                <CheckCircle2 className="h-6 w-6 text-success" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">
+                Connection Successful
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Redirecting to dashboard...
+              </p>
+            </div>
+          </>
         );
     }
   };
 
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-50"
+          onClick={onClose}
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        </Transition.Child>
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </Button>
 
-        <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
-                  <button
-                    type="button"
-                    className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={onClose}
-                  >
-                    <span className="sr-only">Close</span>
-                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
-                </div>
-                <div>
-                  <div className="text-center sm:text-left">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-semibold leading-6 text-gray-900"
-                    >
-                      Connect Wallet
-                    </Dialog.Title>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Select a wallet to connect to Pharos Exchange. You'll
-                        need to approve the connection request in your wallet.
-                      </p>
-                    </div>
-                  </div>
-
-                  {renderStepContent()}
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition.Root>
+        <div className="overflow-y-auto pr-1">{renderContent()}</div>
+      </DialogContent>
+    </Dialog>
   );
 }

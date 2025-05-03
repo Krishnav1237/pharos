@@ -1,14 +1,14 @@
-import "./globals.css";
+// app/layout.tsx
 import { Inter } from "next/font/google";
+import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import Providers from "@/components/Providers";
+import { DebugProviders } from "./debug-providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Pharos Exchange",
-  description: "A decentralized exchange for tokenized stocks and commodities",
+  description: "Decentralized exchange for tokenized assets",
 };
 
 export default function RootLayout({
@@ -19,15 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <div className="min-h-screen flex flex-col bg-slate-50">
-            <Navbar />
-            <main className="flex-grow container mx-auto px-4 py-8">
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </Providers>
+        <DebugProviders>
+          <Navbar />
+          {children}
+        </DebugProviders>
       </body>
     </html>
   );

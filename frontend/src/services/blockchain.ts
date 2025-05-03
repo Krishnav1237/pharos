@@ -1,64 +1,21 @@
 import { ethers } from 'ethers';
 import { AssetType, OrderType, OrderSide, OrderStatus } from '@/types/market';
 
-// ABI definitions for our smart contracts
-// These ABIs are simplified for this example and should be replaced with actual ABIs
-const AssetRegistryABI = [
-  'function getAssetCount() external view returns (uint256)',
-  'function getAssetByIndex(uint256 _index) external view returns (address assetAddress, string memory name, string memory symbol, uint8 assetType, bool isActive)',
-  'function getActiveAssetsByType(uint8 _assetType) external view returns (address[] memory)',
-];
-
-const StockTokenABI = [
-  'function name() external view returns (string memory)',
-  'function symbol() external view returns (string memory)',
-  'function companyName() external view returns (string memory)',
-  'function ticker() external view returns (string memory)',
-  'function companyDescription() external view returns (string memory)',
-  'function maxSupply() external view returns (uint256)',
-  'function isTradable() external view returns (bool)',
-  'function assetRegistry() external view returns (address)',
-  'function balanceOf(address account) external view returns (uint256)',
-  'function approve(address spender, uint256 amount) external returns (bool)',
-  'function allowance(address owner, address spender) external view returns (uint256)',
-];
-
-const CommodityTokenABI = [
-  'function name() external view returns (string memory)',
-  'function symbol() external view returns (string memory)',
-  'function commodityName() external view returns (string memory)',
-  'function commoditySymbol() external view returns (string memory)',
-  'function commodityDescription() external view returns (string memory)',
-  'function commodityCategory() external view returns (string memory)',
-  'function standardUnit() external view returns (uint256)',
-  'function maxSupply() external view returns (uint256)',
-  'function isTradable() external view returns (bool)',
-  'function assetRegistry() external view returns (address)',
-  'function balanceOf(address account) external view returns (uint256)',
-  'function approve(address spender, uint256 amount) external returns (bool)',
-  'function allowance(address owner, address spender) external view returns (uint256)',
-];
-
-const OrderBookABI = [
-  'function createOrder(address _tokenAsset, address _paymentAsset, uint256 _amount, uint256 _price, uint8 _orderType, uint8 _orderSide) external returns (uint256)',
-  'function createOrderWithExpiry(address _tokenAsset, address _paymentAsset, uint256 _amount, uint256 _price, uint8 _orderType, uint8 _orderSide, uint256 _expiryDuration) external returns (uint256)',
-  'function cancelOrder(uint256 _orderId) external',
-  'function getBestPrices(address _tokenAsset, address _paymentAsset) external view returns (uint256 bestBuyPrice, uint256 bestSellPrice)',
-  'function getTraderOrders(address trader, uint256 offset, uint256 limit) external view returns (uint256[] memory)',
-  'function orders(uint256 orderId) external view returns (uint256 id, address trader, address tokenAsset, address paymentAsset, uint256 amount, uint256 price, uint256 filled, uint256 timestamp, uint256 expiry, uint8 orderType, uint8 orderSide, uint8 status)',
-];
-
-const PriceFeedABI = [
-  'function getLatestPrice(address asset) external view returns (uint256 price, uint256 timestamp, bool isStale)',
-  'function getFreshPrice(address asset) external view returns (uint256 price, uint256 timestamp, bool isStale, bool success)',
-];
-
 // Contract addresses - these should be loaded from environment variables or a config file
 // For development, we're using placeholder addresses
 const CONTRACT_ADDRESSES = {
-  assetRegistry: '0x123...', // Replace with actual address
-  orderBook: '0x456...', // Replace with actual address
-  priceFeed: '0x789...', // Replace with actual address
+  assetRegistry: '0x1234567890123456789012345678901234567890', // Replace with actual address
+  orderBook: '0x0987654321098765432109876543210987654321', // Replace with actual address
+  priceFeed: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd', // Replace with actual address
+};
+
+// Helper function to validate Ethereum address
+const isValidAddress = (address: string): boolean => {
+  try {
+    return ethers.utils.isAddress(address);
+  } catch (error) {
+    return false;
+  }
 };
 
 // Helper function to convert asset type from number to enum
@@ -101,103 +58,6 @@ const mapOrderStatus = (statusNum: number): OrderStatus => {
   }
 };
 
-// Get all assets from the registry
-export const getAssets = async (provider: ethers.providers.Web3Provider) => {
-  try {
-    const assetRegistryContract = new ethers.Contract(
-      CONTRACT_ADDRESSES.assetRegistry,
-      AssetRegistryABI,
-      provider
-    );
-
-    const assetCount = await assetRegistryContract.getAssetCount();
-    const assets = [];
-
-    for (let i = 0; i < assetCount; i++) {
-      const [address, name, symbol, assetTypeNum, isActive] = await assetRegistryContract.getAssetByIndex(i);
-      
-      if (!isActive) continue; // Skip inactive assets
-
-      const assetType = mapAssetType(assetTypeNum);
-      
-      // Fetch additional details based on asset type
-      let assetDetails;
-      
-      if (assetType === AssetType.STOCK) {
-        const stockContract = new ethers.Contract(address, StockTokenABI, provider);
-        assetDetails = {
-          companyName: await stockContract.companyName(),
-          ticker: await stockContract.ticker(),
-          description: await stockContract.companyDescription(),
-          maxSupply: await stockContract.maxSupply(),
-          isTradable: await stockContract.isTradable(),
-        };
-      } else if (assetType === AssetType.COMMODITY) {
-        const commodityContract = new ethers.Contract(address, CommodityTokenABI, provider);
-        assetDetails = {
-          commodityName: await commodityContract.commodityName(),
-          commoditySymbol: await commodityContract.commoditySymbol(),
-          description: await commodityContract.commodityDescription(),
-          commodityCategory: await commodityContract.commodityCategory(),
-          standardUnit: await commodityContract.standardUnit(),
-          maxSupply: await commodityContract.maxSupply(),
-          isTradable: await commodityContract.isTradable(),
-        };
-      } else {
-        // Payment tokens have simpler details
-        assetDetails = {
-          description: `${name} payment token`,
-          maxSupply: ethers.constants.MaxUint256.toString(),
-          isTradable: true,
-        };
-      }
-
-      // Add to assets list
-      assets.push({
-        address,
-        name,
-        symbol,
-        assetType,
-        ...assetDetails,
-      });
-    }
-
-    return assets;
-  } catch (error) {
-    console.error('Error fetching assets:', error);
-    throw error;
-  }
-};
-
-// Get latest price for a specific asset
-export const getAssetPrice = async (
-  assetAddress: string,
-  provider: ethers.providers.Web3Provider
-) => {
-  try {
-    const priceFeedContract = new ethers.Contract(
-      CONTRACT_ADDRESSES.priceFeed,
-      PriceFeedABI,
-      provider
-    );
-
-    const [price, timestamp, isStale] = await priceFeedContract.getLatestPrice(assetAddress);
-    
-    // For this simplified example, we're not handling the actual price change calculation
-    // In a real app, you would store previous prices or fetch them from an API
-    return {
-      price: ethers.utils.formatUnits(price, 18),
-      timestamp: timestamp.toNumber(),
-      isStale,
-      change: 0, // Placeholder
-      changePercent: 0, // Placeholder
-    };
-  } catch (error) {
-    console.error(`Error fetching price for ${assetAddress}:`, error);
-    throw error;
-  }
-};
-
 // Get user balance for a specific asset
 export const getAssetBalance = async (
   assetAddress: string,
@@ -205,6 +65,15 @@ export const getAssetBalance = async (
   provider: ethers.providers.Web3Provider
 ) => {
   try {
+    // Validate addresses
+    if (!isValidAddress(assetAddress)) {
+      throw new Error(`Invalid asset address: ${assetAddress}`);
+    }
+    
+    if (!isValidAddress(userAddress)) {
+      throw new Error(`Invalid user address: ${userAddress}`);
+    }
+
     // Both token types have the same balanceOf function
     const tokenContract = new ethers.Contract(
       assetAddress,
@@ -216,7 +85,7 @@ export const getAssetBalance = async (
     return ethers.utils.formatUnits(balance, 18);
   } catch (error) {
     console.error(`Error fetching balance for ${assetAddress}:`, error);
-    throw error;
+    return "0"; // Return 0 balance on error
   }
 };
 
@@ -227,6 +96,11 @@ export const approveOrderBook = async (
   signer: ethers.Signer
 ) => {
   try {
+    // Validate address
+    if (!isValidAddress(assetAddress)) {
+      throw new Error(`Invalid asset address: ${assetAddress}`);
+    }
+    
     const tokenContract = new ethers.Contract(
       assetAddress,
       ['function approve(address, uint256) returns (bool)'],
@@ -253,6 +127,16 @@ export const createOrder = async (
   signer: ethers.Signer
 ) => {
   try {
+    // Validate addresses
+    if (!isValidAddress(tokenAsset) || !isValidAddress(paymentAsset)) {
+      throw new Error(`Invalid asset address provided`);
+    }
+    
+    // Simplified ABI for the contract
+    const OrderBookABI = [
+      'function createOrder(address _tokenAsset, address _paymentAsset, uint256 _amount, uint256 _price, uint8 _orderType, uint8 _orderSide) external returns (uint256)',
+    ];
+    
     const orderBookContract = new ethers.Contract(
       CONTRACT_ADDRESSES.orderBook,
       OrderBookABI,
@@ -276,7 +160,8 @@ export const createOrder = async (
     );
 
     const receipt = await tx.wait();
-    // In a real implementation, you would parse events to get the order ID
+    // For demonstration, add a transaction hash to the receipt
+    receipt.transactionHash = tx.hash;
     return receipt;
   } catch (error) {
     console.error('Error creating order:', error);
@@ -290,6 +175,11 @@ export const cancelOrder = async (
   signer: ethers.Signer
 ) => {
   try {
+    // Simplified ABI for the contract
+    const OrderBookABI = [
+      'function cancelOrder(uint256 _orderId) external',
+    ];
+    
     const orderBookContract = new ethers.Contract(
       CONTRACT_ADDRESSES.orderBook,
       OrderBookABI,
@@ -297,7 +187,10 @@ export const cancelOrder = async (
     );
 
     const tx = await orderBookContract.cancelOrder(orderId);
-    return await tx.wait();
+    const receipt = await tx.wait();
+    // For demonstration, add a transaction hash to the receipt
+    receipt.transactionHash = tx.hash;
+    return receipt;
   } catch (error) {
     console.error(`Error cancelling order ${orderId}:`, error);
     throw error;
@@ -310,13 +203,24 @@ export const getUserOrders = async (
   provider: ethers.providers.Web3Provider
 ) => {
   try {
+    // Validate user address
+    if (!isValidAddress(userAddress)) {
+      throw new Error(`Invalid user address: ${userAddress}`);
+    }
+    
+    // Simplified ABI for the contract
+    const OrderBookABI = [
+      'function getTraderOrders(address trader, uint256 offset, uint256 limit) external view returns (uint256[] memory)',
+      'function orders(uint256 orderId) external view returns (uint256 id, address trader, address tokenAsset, address paymentAsset, uint256 amount, uint256 price, uint256 filled, uint256 timestamp, uint256 expiry, uint8 orderType, uint8 orderSide, uint8 status)',
+    ];
+    
     const orderBookContract = new ethers.Contract(
       CONTRACT_ADDRESSES.orderBook,
       OrderBookABI,
       provider
     );
 
-    // First, get all order IDs for the user
+    // First, get all order IDs for the user (limit to 100 for this example)
     const orderIds = await orderBookContract.getTraderOrders(userAddress, 0, 100);
     
     // Then fetch details for each order
@@ -355,7 +259,8 @@ export const getUserOrders = async (
     return orders;
   } catch (error) {
     console.error(`Error fetching orders for ${userAddress}:`, error);
-    throw error;
+    // Return empty array on error
+    return [];
   }
 };
 
@@ -366,6 +271,16 @@ export const getBestPrices = async (
   provider: ethers.providers.Web3Provider
 ) => {
   try {
+    // Validate addresses
+    if (!isValidAddress(tokenAsset) || !isValidAddress(paymentAsset)) {
+      throw new Error(`Invalid asset address provided`);
+    }
+    
+    // Simplified ABI for the contract
+    const OrderBookABI = [
+      'function getBestPrices(address _tokenAsset, address _paymentAsset) external view returns (uint256 bestBuyPrice, uint256 bestSellPrice)',
+    ];
+    
     const orderBookContract = new ethers.Contract(
       CONTRACT_ADDRESSES.orderBook,
       OrderBookABI,
@@ -380,6 +295,9 @@ export const getBestPrices = async (
     };
   } catch (error) {
     console.error('Error fetching best prices:', error);
-    throw error;
+    return {
+      bestBuyPrice: '0',
+      bestSellPrice: '0',
+    };
   }
 };

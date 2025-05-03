@@ -49,12 +49,15 @@ const AssetBalanceRow = memo(({ balance }: { balance: any }) => (
     </td>
   </tr>
 ));
+// Add display name for AssetBalanceRow
+AssetBalanceRow.displayName = "AssetBalanceRow";
 
 const PortfolioAllocation = memo(
   ({ balances, totalValue }: { balances: any[]; totalValue: number }) => (
     <div className="space-y-4">
       {balances.map((balance) => {
-        const percentage = (balance.balanceUsd / totalValue) * 100;
+        const percentage =
+          totalValue > 0 ? (balance.balanceUsd / totalValue) * 100 : 0; // Added check for totalValue > 0
         return (
           <div key={balance.asset.address}>
             <div className="flex justify-between items-center mb-1">
@@ -75,6 +78,8 @@ const PortfolioAllocation = memo(
     </div>
   )
 );
+// Add display name for PortfolioAllocation
+PortfolioAllocation.displayName = "PortfolioAllocation";
 
 export default function PortfolioPage() {
   // Add render tracking for debugging
@@ -92,9 +97,9 @@ export default function PortfolioPage() {
   );
 
   // Stable state to prevent UI flickering
-  const [stableBalances, setStableBalances] = useState(balances);
-  const [stableOrders, setStableOrders] = useState(orders);
-  const [stableTotalValue, setStableTotalValue] = useState(totalValue);
+  const [stableBalances, setStableBalances] = useState(balances || []); // Initialize with empty array if undefined
+  const [stableOrders, setStableOrders] = useState(orders || []); // Initialize with empty array if undefined
+  const [stableTotalValue, setStableTotalValue] = useState(totalValue || 0); // Initialize with 0 if undefined
 
   // Debug logging
   useEffect(() => {
@@ -116,9 +121,10 @@ export default function PortfolioPage() {
     if (!isLoading) {
       timeoutId = setTimeout(() => {
         console.log("PortfolioPage - updating stable data");
-        setStableBalances(balances);
-        setStableOrders(orders);
-        setStableTotalValue(totalValue);
+        // Ensure data is not undefined before setting
+        setStableBalances(balances || []);
+        setStableOrders(orders || []);
+        setStableTotalValue(totalValue || 0);
       }, 300);
     }
 
@@ -132,7 +138,8 @@ export default function PortfolioPage() {
 
   // Memoize order filtering to prevent unnecessary re-renders
   const openOrders = useCallback(() => {
-    return stableOrders.filter(
+    // Add null/undefined check for stableOrders
+    return (stableOrders || []).filter(
       (order) =>
         order.orderStatus === OrderStatus.OPEN ||
         order.orderStatus === OrderStatus.PARTIAL_FILLED
@@ -140,7 +147,8 @@ export default function PortfolioPage() {
   }, [stableOrders]);
 
   const completedOrders = useCallback(() => {
-    return stableOrders.filter(
+    // Add null/undefined check for stableOrders
+    return (stableOrders || []).filter(
       (order) =>
         order.orderStatus === OrderStatus.FILLED ||
         order.orderStatus === OrderStatus.CANCELLED ||
@@ -160,6 +168,7 @@ export default function PortfolioPage() {
         }, 1000);
       } catch (err) {
         console.error("Error cancelling order:", err);
+        // Optionally: Add user feedback for the error
       } finally {
         setCancellingOrderId(null);
       }
@@ -190,20 +199,31 @@ export default function PortfolioPage() {
     );
   }
 
-  return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Your Portfolio</h1>
+  // --- Render Logic ---
 
+  // Loading state for initial data fetch
+  const showInitialLoading =
+    isLoading && stableBalances.length === 0 && stableOrders.length === 0;
+
+  return (
+    <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {" "}
+      {/* Added padding */}
+      <h1 className="text-3xl font-bold mb-6">Your Portfolio</h1>
       {/* Wallet Address and Total Value */}
       <div className="bg-white p-6 rounded-xl shadow-sm mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
           <div>
             <div className="text-gray-500 text-sm">Wallet Address</div>
-            <div className="font-medium">
+            <div className="font-medium break-all sm:break-normal">
+              {" "}
+              {/* Added break-all for smaller screens */}
               {account ? formatAddress(account, 8) : "N/A"}
             </div>
           </div>
-          <div className="mt-4 sm:mt-0">
+          <div className="mt-4 sm:mt-0 text-right">
+            {" "}
+            {/* Aligned right */}
             <div className="text-gray-500 text-sm">Total Portfolio Value</div>
             <div className="text-2xl font-bold">
               {formatCurrency(stableTotalValue)}
@@ -211,7 +231,6 @@ export default function PortfolioPage() {
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Asset Balances */}
         <div className="lg:col-span-2">
@@ -220,7 +239,7 @@ export default function PortfolioPage() {
               <h2 className="text-lg font-semibold">Asset Balances</h2>
             </div>
 
-            {isLoading && stableBalances.length === 0 ? (
+            {showInitialLoading ? (
               <div className="p-6 text-center">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
                 <p className="mt-4 text-gray-600">
@@ -288,7 +307,7 @@ export default function PortfolioPage() {
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">Portfolio Allocation</h2>
 
-          {isLoading && stableBalances.length === 0 ? (
+          {showInitialLoading ? ( // Use combined loading state
             <div className="flex justify-center items-center h-48">
               <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
             </div>
@@ -304,7 +323,6 @@ export default function PortfolioPage() {
           )}
         </div>
       </div>
-
       {/* Order History */}
       <div className="mt-6">
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -312,14 +330,14 @@ export default function PortfolioPage() {
             <h2 className="text-lg font-semibold">Order History</h2>
           </div>
 
-          {isLoading && stableOrders.length === 0 ? (
+          {showInitialLoading ? ( // Use combined loading state
             <div className="p-6 text-center">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
               <p className="mt-4 text-gray-600">
                 Loading your order history...
               </p>
             </div>
-          ) : stableOrders.length === 0 ? (
+          ) : stableOrders.length === 0 && openOrders().length === 0 ? ( // Check both stable and filtered
             <div className="p-6 text-center">
               <p className="text-gray-600">No orders found.</p>
             </div>
@@ -328,10 +346,10 @@ export default function PortfolioPage() {
               <Tab.List className="flex border-b border-gray-200">
                 <Tab
                   className={({ selected }) =>
-                    `flex-1 py-3 text-sm font-medium ${
+                    `flex-1 py-3 px-1 text-center text-sm font-medium focus:outline-none ${ // Added focus style and center align
                       selected
                         ? "text-indigo-600 border-b-2 border-indigo-600"
-                        : "text-gray-500 hover:text-gray-700"
+                        : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300" // Added hover border
                     }`
                   }
                 >
@@ -339,10 +357,10 @@ export default function PortfolioPage() {
                 </Tab>
                 <Tab
                   className={({ selected }) =>
-                    `flex-1 py-3 text-sm font-medium ${
+                    `flex-1 py-3 px-1 text-center text-sm font-medium focus:outline-none ${ // Added focus style and center align
                       selected
                         ? "text-indigo-600 border-b-2 border-indigo-600"
-                        : "text-gray-500 hover:text-gray-700"
+                        : "text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300" // Added hover border
                     }`
                   }
                 >
@@ -350,7 +368,9 @@ export default function PortfolioPage() {
                 </Tab>
               </Tab.List>
 
-              <Tab.Panels>
+              <Tab.Panels className="mt-2">
+                {" "}
+                {/* Added margin top */}
                 {/* Open Orders */}
                 <Tab.Panel>
                   <div className="overflow-x-auto">
@@ -378,7 +398,7 @@ export default function PortfolioPage() {
                               scope="col"
                               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                              Amount
+                              Amount / Filled
                             </th>
                             <th
                               scope="col"
@@ -433,12 +453,7 @@ export default function PortfolioPage() {
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
                                 <div>{parseFloat(order.amount).toFixed(6)}</div>
                                 <div className="text-xs text-gray-400">
-                                  {order.orderStatus ===
-                                  OrderStatus.PARTIAL_FILLED
-                                    ? `${parseFloat(order.filled).toFixed(
-                                        6
-                                      )} filled`
-                                    : ""}
+                                  {`${parseFloat(order.filled).toFixed(6)}`}
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
@@ -452,7 +467,7 @@ export default function PortfolioPage() {
                                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                     order.orderStatus === OrderStatus.OPEN
                                       ? "bg-blue-100 text-blue-800"
-                                      : "bg-yellow-100 text-yellow-800"
+                                      : "bg-yellow-100 text-yellow-800" // Assuming PARTIAL_FILLED uses yellow
                                   }`}
                                 >
                                   {order.orderStatus.replace("_", " ")}
@@ -465,12 +480,36 @@ export default function PortfolioPage() {
                                     isSubmitting &&
                                     cancellingOrderId === order.id
                                   }
-                                  className="text-red-600 hover:text-red-900 disabled:text-gray-400"
+                                  className="text-red-600 hover:text-red-900 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center justify-end" // Added flex for alignment
                                 >
                                   {isSubmitting &&
-                                  cancellingOrderId === order.id
-                                    ? "Cancelling..."
-                                    : "Cancel"}
+                                  cancellingOrderId === order.id ? (
+                                    <>
+                                      <svg // Simple spinner
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-600"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <circle
+                                          className="opacity-25"
+                                          cx="12"
+                                          cy="12"
+                                          r="10"
+                                          stroke="currentColor"
+                                          strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                          className="opacity-75"
+                                          fill="currentColor"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                      </svg>
+                                      Cancelling...
+                                    </>
+                                  ) : (
+                                    "Cancel"
+                                  )}
                                 </button>
                               </td>
                             </tr>
@@ -510,19 +549,19 @@ export default function PortfolioPage() {
                               scope="col"
                               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                              Amount
+                              Amount / Filled
                             </th>
                             <th
                               scope="col"
                               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                              Price
+                              Avg Price
                             </th>
                             <th
                               scope="col"
                               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                              Total
+                              Total Value
                             </th>
                             <th
                               scope="col"
@@ -539,79 +578,77 @@ export default function PortfolioPage() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {completedOrders().map((order) => (
-                            <tr key={order.id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <span
-                                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                    order.orderSide === OrderSide.BUY
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-red-100 text-red-800"
-                                  }`}
-                                >
-                                  {order.orderSide === OrderSide.BUY
-                                    ? "BUY"
-                                    : "SELL"}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {order.tokenSymbol}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  {order.orderType}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
-                                <div>
-                                  {order.orderStatus === OrderStatus.FILLED
-                                    ? parseFloat(order.amount).toFixed(6)
-                                    : parseFloat(order.filled).toFixed(6)}
-                                </div>
-                                {order.orderStatus === OrderStatus.FILLED &&
-                                  parseFloat(order.amount) !==
-                                    parseFloat(order.filled) && (
-                                    <div className="text-xs text-gray-400">
-                                      of {parseFloat(order.amount).toFixed(6)}
-                                    </div>
-                                  )}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                                {formatCurrency(parseFloat(order.price))}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                                {formatCurrency(
-                                  order.orderStatus === OrderStatus.FILLED
-                                    ? parseFloat(order.totalValue)
-                                    : parseFloat(order.price) *
-                                        parseFloat(order.filled)
-                                )}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right">
-                                <span
-                                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                    order.orderStatus === OrderStatus.FILLED
-                                      ? "bg-green-100 text-green-800"
-                                      : order.orderStatus ===
-                                        OrderStatus.CANCELLED
-                                      ? "bg-gray-100 text-gray-800"
-                                      : "bg-red-100 text-red-800"
-                                  }`}
-                                >
-                                  {order.orderStatus.replace("_", " ")}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
-                                {formatDateTime(order.timestamp, {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </td>
-                            </tr>
-                          ))}
+                          {completedOrders().map((order) => {
+                            const filledAmount = parseFloat(order.filled);
+                            const avgPrice =
+                              filledAmount > 0
+                                ? parseFloat(order.totalValue) / filledAmount // Assuming totalValue is for the filled amount
+                                : parseFloat(order.price); // Fallback to order price if not filled
+                            const totalFilledValue = avgPrice * filledAmount;
+
+                            return (
+                              <tr key={order.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                      order.orderSide === OrderSide.BUY
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
+                                    }`}
+                                  >
+                                    {order.orderSide === OrderSide.BUY
+                                      ? "BUY"
+                                      : "SELL"}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {order.tokenSymbol}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {order.orderType}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                                  <div>
+                                    {parseFloat(order.amount).toFixed(6)}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    {`${filledAmount.toFixed(6)}`}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                                  {formatCurrency(avgPrice)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                                  {formatCurrency(totalFilledValue)}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                      order.orderStatus === OrderStatus.FILLED
+                                        ? "bg-green-100 text-green-800"
+                                        : order.orderStatus ===
+                                          OrderStatus.CANCELLED
+                                        ? "bg-gray-100 text-gray-800"
+                                        : "bg-red-100 text-red-800" // EXPIRED or other terminal states
+                                    }`}
+                                  >
+                                    {order.orderStatus.replace("_", " ")}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                                  {formatDateTime(order.timestamp, {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     )}

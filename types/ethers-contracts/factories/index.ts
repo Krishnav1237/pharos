@@ -2,3 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export { OrderBook__factory } from "./OrderBook__factory";
+export { AssetRegistry__factory } from "./AssetRegistry__factory";
+export { CommodityToken__factory } from "./CommodityToken__factory";
+export { StockToken__factory } from "./StockToken__factory";
+export { MatchingEngine__factory } from "./MatchingEngine__factory";

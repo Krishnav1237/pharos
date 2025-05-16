@@ -4,3 +4,11 @@
 export type { OrderBook } from "./OrderBook";
 export * as factories from "./factories";
 export { OrderBook__factory } from "./factories/OrderBook__factory";
+export { AssetRegistry__factory} from "./factories/AssetRegistry__factory";
+export { AssetRegistry } from "./AssetRegistry";
+export { CommodityToken__factory } from "./factories/CommodityToken__factory";
+export { CommodityToken } from "./CommodityToken";
+export { StockToken__factory } from "./factories/StockToken__factory";
+export { StockToken } from "./StockToken";
+export {MatchingEngine__factory} from "./factories/MatchingEngine__factory";
+export { MatchingEngine } from "./MatchingEngine";
